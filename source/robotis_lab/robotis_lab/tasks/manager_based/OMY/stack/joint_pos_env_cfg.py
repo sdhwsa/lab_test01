@@ -92,17 +92,6 @@ class OMYCubeStackEnvCfg(StackEnvCfg):
         # Add semantics to ground
         self.scene.plane.semantic_tags = [("class", "ground")]
 
-        # Set actions for the specific robot type (OMY)
-        self.actions.arm_action = mdp.JointPositionActionCfg(
-            asset_name="robot", joint_names=["joint.*"], scale=0.5, use_default_offset=True
-        )
-        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
-            asset_name="robot",
-            joint_names=["rh_l1", "rh_l2", "rh_r1_joint", "rh_r2"],
-            open_command_expr={"rh_.*": 0.0},
-            close_command_expr={"rh_.*": 0.8},
-        )
-
         # Rigid body properties of each cube
         cube_properties = RigidBodyPropertiesCfg(
             solver_position_iteration_count=16,

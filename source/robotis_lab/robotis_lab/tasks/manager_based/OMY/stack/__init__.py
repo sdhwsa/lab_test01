@@ -24,7 +24,6 @@ import os
 
 from . import (
     agents,
-    ik_rel_env_cfg,
 )
 
 from .mimic_env import OMYStackMimicEnv
@@ -38,7 +37,7 @@ gym.register(
     id="RobotisLab-Stack-Cube-OMY-IK-Rel-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={
-        "env_cfg_entry_point": ik_rel_env_cfg.OMYCubeStackEnvCfg,
+        "env_cfg_entry_point": f"{__name__}.joint_pos_env_cfg:OMYCubeStackEnvCfg",
         "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_low_dim.json"),
     },
     disable_env_checker=True,

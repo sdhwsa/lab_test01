@@ -6,7 +6,7 @@
 from isaaclab.envs.mimic_env_cfg import MimicEnvCfg, SubTaskConfig
 from isaaclab.utils import configclass
 
-from .ik_rel_env_cfg import OMYCubeStackEnvCfg
+from .joint_pos_env_cfg import OMYCubeStackEnvCfg
 
 
 @configclass
