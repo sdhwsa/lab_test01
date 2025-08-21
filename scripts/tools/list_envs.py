@@ -27,7 +27,7 @@ simulation_app = app_launcher.app
 import gymnasium as gym
 from prettytable import PrettyTable
 
-import robotis_lab.tasks  # noqa: F401
+import robotis_lab  # noqa: F401
 
 
 def main():

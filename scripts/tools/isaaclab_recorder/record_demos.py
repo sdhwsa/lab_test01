@@ -516,7 +516,6 @@ def main() -> None:
     # Create and configure environment
     global env_cfg  # Make env_cfg available to setup_teleop_device
     env_cfg, success_term = create_environment_config(output_dir, output_file_name)
-    env_cfg.use_teleop_device(args_cli.teleop_device)
 
     # Create environment
     env = create_environment(env_cfg)
