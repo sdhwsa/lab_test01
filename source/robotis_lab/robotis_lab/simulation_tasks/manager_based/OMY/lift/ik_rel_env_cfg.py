@@ -28,7 +28,7 @@ from . import joint_pos_env_cfg
 ##
 # Pre-defined configs
 ##
-from robotis_lab.assets.OMY import OMY_HIGH_PD_CFG  # isort: skip
+from robotis_lab.assets.robots.OMY import OMY_HIGH_PD_CFG  # isort: skip
 
 
 @configclass

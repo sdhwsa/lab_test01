@@ -32,11 +32,12 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
-from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
+from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg
 from isaaclab.utils import configclass
 from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
-from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+from isaaclab.sensors import CameraCfg
+from robotis_lab.assets.object.robotis_omy_table import OMY_TABLE_CFG
 
 from . import mdp
 
@@ -54,11 +55,15 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
     ee_frame: FrameTransformerCfg = MISSING
 
     # Table
-    table = AssetBaseCfg(
-        prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]),
-        spawn=UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd"),
-    )
+    # table = AssetBaseCfg(
+    #     prim_path="{ENV_REGEX_NS}/Table",
+    #     init_state=OMY_TABLE_CFG.init_state,
+    #     spawn=OMY_TABLE_CFG.spawn,
+    # )
+    table: AssetBaseCfg = MISSING
+
+    robot_cam: CameraCfg = MISSING
+    top_cam: CameraCfg = MISSING
 
     # plane
     plane = AssetBaseCfg(
@@ -97,6 +102,14 @@ class ObservationsCfg:
         actions = ObsTerm(func=mdp.last_action)
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
+        robot_cam = ObsTerm(
+            func=mdp.image,
+            params={"sensor_cfg": SceneEntityCfg("robot_cam"), "data_type": "rgb", "normalize": False},
+        )
+        top_cam = ObsTerm(
+            func=mdp.image,
+            params={"sensor_cfg": SceneEntityCfg("top_cam"), "data_type": "rgb", "normalize": False},
+        )
 
         def __post_init__(self):
             self.enable_corruption = False
@@ -165,11 +178,6 @@ class StackEnvCfg(ManagerBasedRLEnvCfg):
     rewards = None
     events = None
     curriculum = None
-
-    xr: XrCfg = XrCfg(
-        anchor_pos=(-0.1, -0.5, -1.05),
-        anchor_rot=(0.866, 0, 0, -0.5),
-    )
 
     def __post_init__(self):
         """Post initialization."""

@@ -19,6 +19,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import isaaclab.sim as sim_utils
 from isaaclab.assets import RigidObjectCfg
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import SceneEntityCfg
@@ -28,6 +29,7 @@ from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+from isaaclab.sensors import CameraCfg
 
 from robotis_lab.real_world_tasks.manager_based.OMY.stack.mdp import omy_stack_events
 from robotis_lab.real_world_tasks.manager_based.OMY.stack.stack_env_cfg import StackEnvCfg
@@ -36,12 +38,20 @@ from robotis_lab.real_world_tasks.manager_based.OMY.stack.stack_env_cfg import S
 # Pre-defined configs
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from robotis_lab.assets.OMY import OMY_CFG  # isort: skip
-
+from robotis_lab.assets.robots.OMY import OMY_CFG  # isort: skip
+from robotis_lab.assets.object.robotis_omy_table import OMY_TABLE_CFG
 
 @configclass
 class EventCfg:
     """Configuration for events."""
+
+    init_omy_arm_pose = EventTerm(
+        func=omy_stack_events.set_default_joint_pose,
+        mode="startup",
+        params={
+            "default_pose": [0.0, -1.55, 2.66, -1.1, 1.6, 0.0, 0.0, 0.0, 0.0, 0.0],
+        },
+    )
 
     randomize_omy_joint_state = EventTerm(
         func=omy_stack_events.randomize_joint_by_gaussian_offset,
@@ -57,7 +67,7 @@ class EventCfg:
         func=omy_stack_events.randomize_object_pose,
         mode="reset",
         params={
-            "pose_range": {"x": (0.3, 0.5), "y": (-0.10, 0.10), "z": (0.0203, 0.0203), "yaw": (0, 0, 0)},
+            "pose_range": {"x": (0.3, 0.5), "y": (-0.10, 0.10), "z": (0.103, 0.103), "yaw": (0, 0, 0)},
             "min_separation": 0.12,
             "asset_cfgs": [SceneEntityCfg("cube")],
         },
@@ -77,8 +87,10 @@ class OMYCubeStackEnvCfg(StackEnvCfg):
         self.scene.robot = OMY_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
 
+        self.scene.table = OMY_TABLE_CFG.replace(prim_path="{ENV_REGEX_NS}/Table")
+
         # Add semantics to table
-        self.scene.table.spawn.semantic_tags = [("class", "table")]
+        # self.scene.table.spawn.semantic_tags = [("class", "table")]
 
         # Add semantics to ground
         self.scene.plane.semantic_tags = [("class", "ground")]
@@ -103,6 +115,36 @@ class OMYCubeStackEnvCfg(StackEnvCfg):
                 rigid_props=cube_properties,
                 semantic_tags=[("class", "cube")],
             ),
+        )
+        self.scene.robot_cam = CameraCfg(
+            prim_path="{ENV_REGEX_NS}/Robot/OMY/link6/robot_cam",
+            update_period=0.0,
+            height=224,
+            width=224,
+            data_types=["rgb"],
+            spawn=sim_utils.PinholeCameraCfg(
+                focal_length=11.8, focus_distance=200.0, horizontal_aperture=20.955, clipping_range=(0.01, 100.0)
+            ),
+            offset=CameraCfg.OffsetCfg(
+                pos=(0.0, -0.08, 0.07),
+                rot=(0.5, -0.5, -0.5, -0.5),
+                convention="isaac",
+            )
+        )
+        self.scene.top_cam = CameraCfg(
+            prim_path="{ENV_REGEX_NS}/Table/robotis_omy_table/camera_link/top_cam",
+            update_period=0.0,
+            height=224,
+            width=224,
+            data_types=["rgb"],
+            spawn=sim_utils.PinholeCameraCfg(
+                focal_length=8.0, focus_distance=200.0, horizontal_aperture=20.955, clipping_range=(0.01, 100.0)
+            ),
+            offset=CameraCfg.OffsetCfg(
+                pos=(0.0, 0.0, 0.0),
+                rot=(0.0, 0.0, 0.0, 0.0),
+                convention="isaac",
+            )
         )
 
         # Listens to the required transforms

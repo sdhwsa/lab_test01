@@ -37,7 +37,7 @@ from robotis_lab.simulation_tasks.manager_based.OMY.stack.stack_env_cfg import S
 # Pre-defined configs
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from robotis_lab.assets.OMY import OMY_CFG  # isort: skip
+from robotis_lab.assets.robots.OMY import OMY_CFG  # isort: skip
 
 
 @configclass

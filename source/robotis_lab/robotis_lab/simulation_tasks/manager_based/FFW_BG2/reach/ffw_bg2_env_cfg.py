@@ -25,7 +25,7 @@ import robotis_lab.simulation_tasks.manager_based.FFW_BG2.reach.mdp as mdp
 from robotis_lab.simulation_tasks.manager_based.FFW_BG2.reach.reach_env_cfg import ReachEnvCfg
 from isaaclab.managers import SceneEntityCfg
 
-from robotis_lab.assets.FFW_BG2 import FFW_BG2_CFG  # isort: skip
+from robotis_lab.assets.robots.FFW_BG2 import FFW_BG2_CFG  # isort: skip
 
 
 @configclass

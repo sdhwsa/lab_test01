@@ -34,7 +34,7 @@ from robotis_lab.simulation_tasks.manager_based.OMY.lift.lift_env_cfg import Lif
 ##
 # Pre-defined configs
 ##
-from robotis_lab.assets.OMY import OMY_HIGH_PD_CFG  # isort: skip
+from robotis_lab.assets.robots.OMY import OMY_HIGH_PD_CFG  # isort: skip
 
 
 @configclass

@@ -15,7 +15,7 @@ from isaaclab.app import AppLauncher
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="robotis_lab teleoperation for robotis_lab environments.")
-parser.add_argument("--teleop_device", type=str, default="keyboard", choices=['omy_leader'], help="Device for interacting with environment")
+parser.add_argument("--teleop_device", type=str, default="keyboard", choices=['keyboard','omy_leader'], help="Device for interacting with environment")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=42, help="Seed for the environment.")
 
@@ -122,9 +122,12 @@ def main():
     # create controller
     if args_cli.teleop_device == "omy_leader":
         teleop_interface = OMYLeader(env)
+    elif args_cli.teleop_device == "keyboard":
+        from isaaclab.devices import Se3Keyboard, Se3KeyboardCfg
+        teleop_interface = Se3Keyboard(Se3KeyboardCfg())
     else:
         raise ValueError(
-            f"Invalid device interface '{args_cli.teleop_device}'. Supported: 'omy_leader'."
+            f"Invalid device interface '{args_cli.teleop_device}'. Supported: 'omy_leader', 'keyboard'."
         )
 
     # add teleoperation key for env reset
@@ -206,6 +209,8 @@ def main():
                 env.render()
             # apply actions
             else:
+                if actions.ndim == 1:
+                    actions = actions.unsqueeze(0)
                 if not start_record_state:
                     print("Start Recording!!!")
                     start_record_state = True

@@ -29,7 +29,7 @@ from isaaclab.managers import SceneEntityCfg
 ##
 # Pre-defined configs
 ##
-from robotis_lab.assets.OMY import OMY_CFG  # isort: skip
+from robotis_lab.assets.robots.OMY import OMY_CFG  # isort: skip
 
 
 ##

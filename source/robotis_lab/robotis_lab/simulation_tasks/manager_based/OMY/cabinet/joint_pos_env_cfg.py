@@ -33,7 +33,7 @@ from robotis_lab.simulation_tasks.manager_based.OMY.cabinet.cabinet_env_cfg impo
 ##
 # Pre-defined configs
 ##
-from robotis_lab.assets.OMY import OMY_CFG  # isort: skip
+from robotis_lab.assets.robots.OMY import OMY_CFG  # isort: skip
 
 
 @configclass
