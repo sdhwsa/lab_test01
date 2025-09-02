@@ -33,7 +33,7 @@ from reach_env_cfg import ReachEnvConfig
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
-from sim2real.utils.policy_executor import PolicyExecutor
+from inference.utils.policy_executor import PolicyExecutor
 
 
 class OMYReachPolicy(Node, PolicyExecutor):

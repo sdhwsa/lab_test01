@@ -42,7 +42,9 @@ This project provides simulation environments, configuration tools, and task def
 
 ## Try examples
 
-### Reinforcement learning
+### Sim2Sim
+<details>
+<summary>Reinforcement learning</summary>
 
 OMY Reach task
 
@@ -84,7 +86,10 @@ python scripts/reinforcement_learning/rsl_rl/train.py --task RobotisLab-Reach-FF
 python scripts/reinforcement_learning/rsl_rl/play.py --task RobotisLab-Reach-FFW-BG2-v0 --num_envs=16
 ```
 
-### Imitation learning
+</details>
+
+<details>
+<summary>Imitation learning</summary>
 
 > [!NOTE]
 > If you want to control a **SINGLE ROBOT** with the keyboard during playback, add `--keyboard` at the end of the play script.
@@ -153,16 +158,15 @@ python scripts/imitation_learning/robomimic/play.py \
 --device cuda --task RobotisLab-PickPlace-FFW-BG2-IK-Rel-v0  --num_rollouts 50 \
 --checkpoint /PATH/TO/desired_model_checkpoint.pth --enable_cameras
 ```
+</details>
 
-## Sim2Real Deployment
+### Sim2Real
 
-### Reinforcement learning
 <details>
-<summary>🎥 Show demo video</summary>
+<summary>Reinforcement learning</summary>
 
 https://github.com/user-attachments/assets/6c27bdb1-3a6b-4686-a546-8f14f01e4abe
 
-</details>
 
 > [!IMPORTANT]
 > More on OMY Hardware Setup:
@@ -193,3 +197,4 @@ Replace <2025-07-10_08-47-09> with the actual timestamp folder name under:
 ```bash
 logs/rsl_rl/reach_omy/
 ```
+</details>
