@@ -6,16 +6,15 @@ import numpy as np
 from pynput.keyboard import Listener
 from collections.abc import Callable
 from datetime import datetime
-from robotis_python_sdk.core.channel import (
-    ChannelSubscriber,
-    ChannelPublisher,
-    ChannelFactoryInitialize,
-)
-from robotis_python_sdk.idl.trajectory_msgs.msg.dds_ import JointTrajectory_
-from robotis_python_sdk.idl.sensor_msgs.msg.dds_ import JointState_
-from robotis_python_sdk.idl.sensor_msgs.msg.dds_ import CompressedImage_
-from robotis_python_sdk.idl.std_msgs.msg.dds_ import Header_
-from robotis_python_sdk.idl.builtin_interfaces.msg.dds_ import Time_
+
+from robotis_python_sdk.idl.trajectory_msgs.msg import JointTrajectory_
+from robotis_python_sdk.idl.sensor_msgs.msg import JointState_
+from robotis_python_sdk.idl.sensor_msgs.msg import CompressedImage_
+from robotis_python_sdk.idl.std_msgs.msg import Header_
+from robotis_python_sdk.idl.builtin_interfaces.msg import Time_
+
+from robotis_python_sdk.tools.topic_writer import topic_writer
+from robotis_python_sdk.tools.topic_reader import topic_reader
 
 class OMYSdk:
     """OMYSdk class for DDS teleoperation + publishing state/image."""
@@ -31,22 +30,32 @@ class OMYSdk:
         self.joint_names = ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "rh_r1_joint"]
         self.exclude_joints = []
 
-        # Initialize DDS
-        ChannelFactoryInitialize(id=self.domain_id)
-
         # Subscriber (leader input)
-        self.sub = ChannelSubscriber("rt/leader/joint_trajectory", JointTrajectory_)
-        self.sub.Init()
+        self.joint_trajectory_reader = topic_reader(
+            domain_id=self.domain_id,
+            topic_name="leader/joint_trajectory",
+            topic_type=JointTrajectory_
+        )
+
 
         # Publishers (state + camera)
-        self.pub_joint = ChannelPublisher("rt/joint_states", JointState_)
-        self.pub_joint.Init()
+        self.joint_state_writer = topic_writer(
+            domain_id=self.domain_id,
+            topic_name="joint_states",
+            topic_type=JointState_
+        )
 
-        self.pub_top_cam = ChannelPublisher("rt/camera/cam_top/color/image_rect_raw/compressed", CompressedImage_)
-        self.pub_top_cam.Init()
+        self.top_cam_writer = topic_writer(
+            domain_id=self.domain_id,
+            topic_name="camera/cam_top/color/image_rect_raw/compressed",
+            topic_type=CompressedImage_
+        )
 
-        self.pub_wrist_cam = ChannelPublisher("rt/camera/cam_wrist/color/image_rect_raw/compressed", CompressedImage_)
-        self.pub_wrist_cam.Init()
+        self.wrist_cam_writer = topic_writer(
+            domain_id=self.domain_id,
+            topic_name="camera/cam_wrist/color/image_rect_raw/compressed",
+            topic_type=CompressedImage_
+        )
 
         # Subscriber thread
         self.thread = threading.Thread(target=self._subscriber_loop, daemon=True)
@@ -103,11 +112,11 @@ class OMYSdk:
     def _subscriber_loop(self):
         try:
             while self.running:
-                msg = self.sub.Read()  # blocking read
-                if msg is not None and msg.points:
-                    msg_joint_names = msg.joint_names
-                    msg_positions = msg.points[-1].positions
-                    joint_dict = dict(zip(msg_joint_names, msg_positions))
+                for msg in self.joint_trajectory_reader.take_iter():
+                    if msg is not None and msg.points:
+                        msg_joint_names = msg.joint_names
+                        msg_positions = msg.points[-1].positions
+                        joint_dict = dict(zip(msg_joint_names, msg_positions))
                     self.joint_trajectory_cmd = [
                         joint_dict.get(name, 0.0) for name in self.joint_names
                     ]
@@ -157,7 +166,7 @@ class OMYSdk:
         )
 
         try:
-            self.pub_joint.Write(joint_state)
+            self.joint_state_writer.write(joint_state)
         except Exception as e:
             print("[Writer] write sample error. msg:", e.args)
 
@@ -186,9 +195,9 @@ class OMYSdk:
                 data=jpeg_bytes
             )
             if cam_name == "cam_wrist":
-                self.pub_wrist_cam.Write(msg)
+                self.wrist_cam_writer.write(msg)
             elif cam_name == "cam_top":
-                self.pub_top_cam.Write(msg)
+                self.top_cam_writer.write(msg)
 
         except Exception as e:
             print("Camera publish error:", e)
@@ -198,9 +207,9 @@ class OMYSdk:
         self.thread.join()
         # DDS cleanup
         self.sub.Close()
-        self.pub_joint.Close()
-        self.pub_top_cam.Close()
-        self.pub_wrist_cam.Close()
+        self.joint_state_writer.Close()
+        self.top_cam_writer.Close()
+        self.wrist_cam_writer.Close()
         print("OMYSdk shutdown complete")
 
     def reset(self):
