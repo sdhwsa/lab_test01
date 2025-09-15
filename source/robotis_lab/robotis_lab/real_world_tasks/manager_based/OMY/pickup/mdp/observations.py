@@ -32,7 +32,7 @@ from isaaclab.envs import ManagerBasedEnv
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
-def joint_pos_rel_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
+def joint_pos_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
     """
     Returns the relative joint positions for the specified joint names.
 
@@ -48,9 +48,9 @@ def joint_pos_rel_name(env: ManagerBasedEnv, joint_names: list[str], asset_name:
 
     joint_ids = [asset.joint_names.index(name) for name in joint_names]
 
-    return asset.data.joint_pos[:, joint_ids] - asset.data.default_joint_pos[:, joint_ids]
+    return asset.data.joint_pos[:, joint_ids]
 
-def joint_vel_rel_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
+def joint_vel_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
     """
     Returns the relative joint velocities for the specified joint names.
 
@@ -66,15 +66,15 @@ def joint_vel_rel_name(env: ManagerBasedEnv, joint_names: list[str], asset_name:
 
     joint_ids = [asset.joint_names.index(name) for name in joint_names]
 
-    return asset.data.joint_vel[:, joint_ids] - asset.data.default_joint_vel[:, joint_ids]
+    return asset.data.joint_vel[:, joint_ids]
 
 def object_grasped(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg,
     ee_frame_cfg: SceneEntityCfg,
     object_cfg: SceneEntityCfg,
-    diff_threshold: float = 0.03,
-    gripper_close_threshold: torch.tensor = torch.tensor([0.6]),
+    diff_threshold: float = 0.1,
+    gripper_close_threshold: torch.tensor = torch.tensor([0.3]),
 ) -> torch.Tensor:
     """Check if an object is grasped by the specified robot."""
     robot: Articulation = env.scene[robot_cfg.name]
@@ -84,7 +84,6 @@ def object_grasped(
     object_pos = object.data.root_pos_w
     end_effector_pos = ee_frame.data.target_pos_w[:, 0, :]
     pose_diff = torch.linalg.vector_norm(object_pos - end_effector_pos, dim=1)
-
     grasped = torch.logical_and(
         pose_diff < diff_threshold,
         robot.data.joint_pos[:, -1] >= gripper_close_threshold.to(env.device),
@@ -94,3 +93,15 @@ def object_grasped(
     )
     return grasped
 
+def ee_frame_pos(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+    ee_frame_pos = ee_frame.data.target_pos_w[:, 0, :] - env.scene.env_origins[:, 0:3]
+
+    return ee_frame_pos
+
+
+def ee_frame_quat(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+    ee_frame_quat = ee_frame.data.target_quat_w[:, 0, :]
+
+    return ee_frame_quat

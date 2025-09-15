@@ -50,7 +50,7 @@ class EventCfg:
 
     init_omy_arm_pose = EventTerm(
         func=omy_pickup_events.set_default_joint_pose,
-        mode="startup",
+        mode="reset",
         params={
             "default_pose": [0.0, -1.55, 2.66, -1.1, 1.6, 0.0, 0.0, 0.0, 0.0, 0.0],
         },
@@ -70,7 +70,7 @@ class EventCfg:
         func=omy_pickup_events.randomize_object_pose,
         mode="reset",
         params={
-            "pose_range": {"x": (0.2, 0.3), "y": (-0.15, 0.0), "z": (0.0, 0.0), "pitch": (0.0, 6.283), "yaw": (-0.30, 0.30)},
+            "pose_range": {"x": (0.25, 0.3), "y": (-0.07, 0.08), "z": (0.0, 0.0), "pitch": (0.0, 6.283), "yaw": (-0.30, 0.30)},
             "min_separation": 0.12,
             "asset_cfgs": [SceneEntityCfg("bottle")],
         },

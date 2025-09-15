@@ -45,6 +45,7 @@ class StreamingHDF5DatasetFileHandler(HDF5DatasetFileHandler):
         def _do_write_episode(self, h5_episode_group: h5py.Group, episode: EpisodeData):
             def create_dataset_helper(group, key, value):
                 """Helper method to recursively create datasets in HDF5 from nested dict/list/tensors."""
+
                 if isinstance(value, dict):
                     # Recurse into sub-groups
                     if key not in group:
@@ -55,23 +56,24 @@ class StreamingHDF5DatasetFileHandler(HDF5DatasetFileHandler):
                         create_dataset_helper(key_group, sub_key, sub_value)
 
                 elif isinstance(value, list):
-                    # Convert list of tensors/numbers into a single array
+                    # Convert list of tensors/numbers into a single array with batch-first
                     tensor_list = []
                     for v in value:
                         if torch.is_tensor(v):
                             v = v.cpu()
-                            # Ensure batch dimension for images or 3D data
-                            if v.dim() == 3:  # e.g. [H, W, C]
-                                v = v.unsqueeze(0)  # -> [1, H, W, C]
+                            if v.dim() == 0:
+                                v = v.unsqueeze(0)        # scalar -> (1,)
+                            elif v.dim() == 1:
+                                v = v.unsqueeze(0)        # 1D -> (1, D)
+                            elif v.dim() == 3:
+                                v = v.unsqueeze(0)        # image -> (1, H, W, C)
                             tensor_list.append(v)
                         elif isinstance(v, (float, int, np.floating, np.integer)):
-                            # Wrap scalars into 2D tensors so they can be concatenated
-                            tensor_list.append(torch.tensor([[v]], dtype=torch.float32))
+                            tensor_list.append(torch.tensor([[v]], dtype=torch.float32))  # scalar -> (1,1)
                         else:
                             raise ValueError(f"Unsupported type in list for HDF5 export: {type(v)}")
 
-                    # Concatenate along batch dimension
-                    data = torch.cat(tensor_list, dim=0).numpy()  # shape: [N, ...]
+                    data = torch.cat(tensor_list, dim=0).numpy()  # shape: (N, ...)
 
                     if key not in group:
                         dataset = group.create_dataset(
@@ -89,10 +91,20 @@ class StreamingHDF5DatasetFileHandler(HDF5DatasetFileHandler):
                         dataset[-data.shape[0]:] = data
 
                 else:
-                    # Single tensor case (not inside a list)
-                    data = value.cpu().numpy()
-                    if data.ndim == 3:  # e.g. [H, W, C]
-                        data = np.expand_dims(data, axis=0)  # -> [1, H, W, C]
+                    # Single tensor (or scalar) case
+                    if torch.is_tensor(value):
+                        data = value.cpu()
+                    else:
+                        data = torch.tensor(value, dtype=torch.float32)
+
+                    if data.ndim == 0:
+                        data = data.unsqueeze(0)      # scalar -> (1,)
+                    elif data.ndim == 1:
+                        data = data.unsqueeze(0)      # 1D -> (1, D)
+                    elif data.ndim == 3:
+                        data = data.unsqueeze(0)      # image -> (1, H, W, C)
+
+                    data = data.numpy()
 
                     if key not in group:
                         dataset = group.create_dataset(

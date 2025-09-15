@@ -92,13 +92,14 @@ class ObservationsCfg:
         """Observations for policy group with state values."""
 
         actions = ObsTerm(func=mdp.last_action)
+
         joint_pos = ObsTerm(
-            func=mdp.joint_pos_rel_name,
+            func=mdp.joint_pos_name,
             params={"joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "rh_r1_joint"],
                     "asset_name": "robot"},
         )
         joint_vel = ObsTerm(
-            func=mdp.joint_vel_rel_name,
+            func=mdp.joint_vel_name,
             params={"joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "rh_r1_joint"],
                     "asset_name": "robot"},
         )
@@ -110,6 +111,8 @@ class ObservationsCfg:
             func=mdp.image,
             params={"sensor_cfg": SceneEntityCfg("cam_top"), "data_type": "rgb", "normalize": False},
         )
+        eef_pos = ObsTerm(func=mdp.ee_frame_pos)
+        eef_quat = ObsTerm(func=mdp.ee_frame_quat)
 
         def __post_init__(self):
             self.enable_corruption = False
@@ -119,7 +122,7 @@ class ObservationsCfg:
     class SubtaskCfg(ObsGroup):
         """Observations for subtask group."""
 
-        grasp = ObsTerm(
+        grasp_bottle = ObsTerm(
             func=mdp.object_grasped,
             params={
                 "robot_cfg": SceneEntityCfg("robot"),
@@ -142,6 +145,10 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
+
+    success = DoneTerm(
+        func=mdp.task_done, params={"bottle_cfg": SceneEntityCfg("bottle"), "yaw_threshold": 0.3}
+    )
 
     bottle_dropping = DoneTerm(
         func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("bottle")}

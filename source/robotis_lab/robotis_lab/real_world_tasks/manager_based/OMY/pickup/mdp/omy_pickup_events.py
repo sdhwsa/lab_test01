@@ -156,54 +156,6 @@ def randomize_object_pose(
                 torch.zeros(1, 6, device=env.device), env_ids=torch.tensor([cur_env], device=env.device)
             )
 
-
-def randomize_rigid_objects_in_focus(
-    env: ManagerBasedEnv,
-    env_ids: torch.Tensor,
-    asset_cfgs: list[SceneEntityCfg],
-    out_focus_state: torch.Tensor,
-    min_separation: float = 0.0,
-    pose_range: dict[str, tuple[float, float]] = {},
-    max_sample_tries: int = 5000,
-):
-    if env_ids is None:
-        return
-
-    # List of rigid objects in focus for each env (dim = [num_envs, num_rigid_objects])
-    env.rigid_objects_in_focus = []
-
-    for cur_env in env_ids.tolist():
-        # Sample in focus object poses
-        pose_list = sample_object_poses(
-            num_objects=len(asset_cfgs),
-            min_separation=min_separation,
-            pose_range=pose_range,
-            max_sample_tries=max_sample_tries,
-        )
-
-        selected_ids = []
-        for asset_idx in range(len(asset_cfgs)):
-            asset_cfg = asset_cfgs[asset_idx]
-            asset = env.scene[asset_cfg.name]
-
-            # Randomly select an object to bring into focus
-            object_id = random.randint(0, asset.num_objects - 1)
-            selected_ids.append(object_id)
-
-            # Create object state tensor
-            object_states = torch.stack([out_focus_state] * asset.num_objects).to(device=env.device)
-            pose_tensor = torch.tensor([pose_list[asset_idx]], device=env.device)
-            positions = pose_tensor[:, 0:3] + env.scene.env_origins[cur_env, 0:3]
-            orientations = math_utils.quat_from_euler_xyz(pose_tensor[:, 3], pose_tensor[:, 4], pose_tensor[:, 5])
-            object_states[object_id, 0:3] = positions
-            object_states[object_id, 3:7] = orientations
-
-            asset.write_object_state_to_sim(
-                object_state=object_states, env_ids=torch.tensor([cur_env], device=env.device)
-            )
-
-        env.rigid_objects_in_focus.append(selected_ids)
-
 def randomize_scene_lighting_domelight(
     env: ManagerBasedEnv,
     env_ids: torch.Tensor,
@@ -248,14 +200,13 @@ def randomize_camera_pose(
 
     asset: Camera = env.scene[asset_cfg.name]
 
-    # Store the camera's initial position and quaternion once and reuse
+    # Store initial positions and quaternions once
     if not hasattr(asset, "_initial_pos_w"):
         asset._initial_pos_w = asset.data.pos_w.clone()
         asset._initial_quat_w_ros = asset.data.quat_w_ros.clone()
         asset._initial_quat_w_opengl = asset.data.quat_w_opengl.clone()
         asset._initial_quat_w_world = asset.data.quat_w_world.clone()
 
-    # Use the stored initial position and quaternion
     ori_pos_w = asset._initial_pos_w
     if convention == "ros":
         ori_quat_w = asset._initial_quat_w_ros
@@ -264,20 +215,22 @@ def randomize_camera_pose(
     elif convention == "world":
         ori_quat_w = asset._initial_quat_w_world
 
-    # Get range for each axis
+    # Get pose ranges
     range_list = [pose_range.get(k, (0.0, 0.0)) for k in ["x", "y", "z", "roll", "pitch", "yaw"]]
     ranges = torch.tensor(range_list, device=asset.device)
+
+    # Sample random offsets for each environment independently
     rand_samples = math_utils.sample_uniform(
         ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device
     )
 
-    # Compute new positions and rotations
-    positions = ori_pos_w[:, 0:3] + rand_samples[:, 0:3]
-    orientations_delta = math_utils.quat_from_euler_xyz(
-        rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5]
-    )
-    orientations = math_utils.quat_mul(ori_quat_w, orientations_delta)
-
-    # Apply to camera
-    asset.set_world_poses(positions, orientations, env_ids, convention)
-
+    # Apply per-env randomization
+    for i, env_id in enumerate(env_ids.tolist()):
+        pos = ori_pos_w[env_id, 0:3] + rand_samples[i, 0:3]
+        ori_delta = math_utils.quat_from_euler_xyz(
+            rand_samples[i, 3], rand_samples[i, 4], rand_samples[i, 5]
+        )
+        ori = math_utils.quat_mul(ori_quat_w[env_id], ori_delta)
+        asset.set_world_poses(
+            pos.unsqueeze(0), ori.unsqueeze(0), env_ids=torch.tensor([env_id], device=asset.device), convention=convention
+        )

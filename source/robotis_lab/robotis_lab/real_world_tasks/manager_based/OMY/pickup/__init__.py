@@ -33,3 +33,12 @@ gym.register(
     },
     disable_env_checker=True,
 )
+
+gym.register(
+    id="RobotisLab-Real-Mimic-Pickup-Bottle-OMY-v0",
+    entry_point="robotis_lab.real_world_tasks.manager_based.OMY.pickup.pickup_mimic_env:OMYPickupMimicEnv",
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.pickup_mimic_env_cfg:OMYPickupMimicEnvCfg",
+    },
+    disable_env_checker=True,
+)
