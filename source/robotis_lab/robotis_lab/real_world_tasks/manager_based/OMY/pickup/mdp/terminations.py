@@ -67,7 +67,7 @@ def euler_from_quat_xyz_stable(quat):
 
     return torch.stack([roll, pitch, yaw], dim=-1)
 
-def task_done(env: ManagerBasedRLEnv, bottle_cfg: SceneEntityCfg, yaw_threshold: float = 0.35) -> torch.Tensor:
+def task_done(env: ManagerBasedRLEnv, bottle_cfg: SceneEntityCfg, yaw_threshold: float = 0.2) -> torch.Tensor:
     """
     Success = bottle rotated ~180° (yaw near ±π), and lifted above ground.
     """

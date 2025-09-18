@@ -108,13 +108,3 @@ OMY_HIGH_PD_CFG = OMY_CFG.replace(
         ),
     }
 )
-
-OMY_SELF_COLLISION_OFF_CFG = OMY_CFG.replace(
-    spawn=OMY_CFG.spawn.replace(
-        articulation_props=OMY_CFG.spawn.articulation_props.replace(
-            enabled_self_collisions=False,
-        ),
-    ),
-    init_state=OMY_CFG.init_state,
-    actuators=OMY_CFG.actuators,
-)

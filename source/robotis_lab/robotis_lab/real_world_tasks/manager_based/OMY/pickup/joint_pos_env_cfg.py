@@ -38,7 +38,7 @@ from robotis_lab.real_world_tasks.manager_based.OMY.pickup.pickup_env_cfg import
 # Pre-defined configs
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from robotis_lab.assets.robots.OMY import OMY_SELF_COLLISION_OFF_CFG  # isort: skip
+from robotis_lab.assets.robots.OMY import OMY_CFG  # isort: skip
 from robotis_lab.assets.object.robotis_omy_table import OMY_TABLE_CFG
 from robotis_lab.assets.object.plastic_bottle import PLASTIC_BOTTLE_CFG
 
@@ -70,8 +70,8 @@ class EventCfg:
         func=omy_pickup_events.randomize_object_pose,
         mode="reset",
         params={
-            "pose_range": {"x": (0.25, 0.3), "y": (-0.07, 0.08), "z": (0.0, 0.0), "pitch": (0.0, 6.283), "yaw": (-0.30, 0.30)},
-            "min_separation": 0.12,
+            "pose_range": {"x": (0.25, 0.3), "y": (-0.07, 0.08), "z": (0.015, 0.015), "yaw": (-0.30, 0.30)},
+            "min_separation": 0.1,
             "asset_cfgs": [SceneEntityCfg("bottle")],
         },
     )
@@ -113,22 +113,8 @@ class OMYBottlePickupEnvCfg(PickupEnvCfg):
         self.events = EventCfg()
 
         # Set OMY as robot
-        self.scene.robot = OMY_SELF_COLLISION_OFF_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = OMY_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
-
-        # Set actions for the specific robot type (OMY)
-        self.actions.arm_action = mdp.JointPositionActionCfg(
-            asset_name="robot",
-            joint_names=["joint.*"],
-            scale=1.0,
-            use_default_offset=False,
-        )
-        self.actions.gripper_action = mdp.JointPositionActionCfg(
-            asset_name="robot",
-            joint_names=["rh_r1_joint"],
-            scale=1.0,
-            use_default_offset=False,
-        )
 
         # Set table
         self.scene.table = OMY_TABLE_CFG.replace(prim_path="{ENV_REGEX_NS}/Table")

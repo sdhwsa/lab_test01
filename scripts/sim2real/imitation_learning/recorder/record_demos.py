@@ -90,6 +90,7 @@ def main():
         os.makedirs(output_dir)
 
     env_cfg = parse_env_cfg(args_cli.task, device=args_cli.device, num_envs=1)
+    env_cfg.init_action_cfg("record")
     env_cfg.seed = args_cli.seed
     task_name = args_cli.task
 

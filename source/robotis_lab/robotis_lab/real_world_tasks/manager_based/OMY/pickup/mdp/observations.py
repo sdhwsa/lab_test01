@@ -28,9 +28,36 @@ from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import FrameTransformer
 from isaaclab.envs import ManagerBasedEnv
+import isaaclab.utils.math as math_utils
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
+
+def ee_frame_state(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"), robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """
+    Return the state of the end effector frame in the robot coordinate system.
+    """
+    robot = env.scene[robot_cfg.name]
+    robot_root_pos, robot_root_quat = robot.data.root_pos_w, robot.data.root_quat_w
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+    ee_frame_pos, ee_frame_quat = ee_frame.data.target_pos_w[:, 0, :], ee_frame.data.target_quat_w[:, 0, :]
+    ee_frame_pos_robot, ee_frame_quat_robot = math_utils.subtract_frame_transforms(
+        robot_root_pos, robot_root_quat, ee_frame_pos, ee_frame_quat
+    )
+    ee_frame_state = torch.cat([ee_frame_pos_robot, ee_frame_quat_robot], dim=1)
+
+    return ee_frame_state
+
+def last_action(env: ManagerBasedEnv, action_name: str | None = None) -> torch.Tensor:
+    """The last input action to the environment.
+
+    The name of the action term for which the action is required. If None, the
+    entire action tensor is returned.
+    """
+    if action_name is None:
+        return env.action_manager.action
+    else:
+        return env.action_manager.get_term(action_name).raw_actions
 
 def joint_pos_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
     """
@@ -48,7 +75,9 @@ def joint_pos_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str
 
     joint_ids = [asset.joint_names.index(name) for name in joint_names]
 
-    return asset.data.joint_pos[:, joint_ids]
+    joint_pos = asset.data.joint_pos[:, joint_ids]
+
+    return joint_pos
 
 def joint_vel_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
     """
@@ -105,3 +134,17 @@ def ee_frame_quat(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEn
     ee_frame_quat = ee_frame.data.target_quat_w[:, 0, :]
 
     return ee_frame_quat
+
+def joint_pos_target_name(env: ManagerBasedEnv, joint_names: list[str], asset_name: str = "robot") -> torch.Tensor:
+    """The joint positions target of the asset.
+
+    Note: Only the joints configured in :attr:`asset_cfg.joint_ids` will have their positions returned.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_name]
+
+    joint_ids = [asset.joint_names.index(name) for name in joint_names]
+
+    joint_pos_target = asset.data.joint_pos_target[:, joint_ids]
+
+    return joint_pos_target

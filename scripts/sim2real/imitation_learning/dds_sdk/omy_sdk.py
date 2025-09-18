@@ -141,21 +141,31 @@ class OMYSdk:
         stamp = Time_(sec=int(now.timestamp()), nanosec=now.microsecond * 1000)
         header = Header_(stamp=stamp, frame_id="base_link")
 
-        positions = self.env.scene["robot"].data.joint_pos.squeeze(0).tolist()
-        velocities = self.env.scene["robot"].data.joint_vel.squeeze(0).tolist()
-        efforts = [0.0] * len(positions)
+        obs_joint_name = self.env.scene["robot"].data.joint_names
+        all_positions = self.env.scene["robot"].data.joint_pos.squeeze(0).tolist()
+        all_velocities = self.env.scene["robot"].data.joint_vel.squeeze(0).tolist()
+        all_efforts = [0.0] * len(all_positions)
 
         # Flatten nested lists if necessary
-        if isinstance(positions[0], list):
-            positions = [p for sub in positions for p in sub]
-        if isinstance(velocities[0], list):
-            velocities = [v for sub in velocities for v in sub]
+        if isinstance(all_positions[0], list):
+            all_positions = [p for sub in all_positions for p in sub]
+        if isinstance(all_velocities[0], list):
+            all_velocities = [v for sub in all_velocities for v in sub]
+
+        # Get indices of the joints we care about
+        indices = [obs_joint_name.index(name) for name in self.joint_names]
+
+        positions = [all_positions[i] for i in indices]
+        velocities = [all_velocities[i] for i in indices]
+        efforts = [all_efforts[i] for i in indices]
 
         joint_state = JointState_(
-            header=header, name=list(self.joint_names),
-            position=list(positions),
-            velocity=list(velocities),
-            effort=list(efforts))
+            header=header,
+            name=list(self.joint_names),
+            position=positions,
+            velocity=velocities,
+            effort=efforts
+        )
 
         try:
             self.joint_state_writer.write(joint_state)

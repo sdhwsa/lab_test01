@@ -31,6 +31,8 @@ from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
+from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
+from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 from isaaclab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg
 from isaaclab.utils import configclass
@@ -79,8 +81,8 @@ class ActionsCfg:
 
     # will be set by agent env cfg
     print("ActionsCfg: arm_action and gripper_action will be set by agent env cfg")
-    arm_action: mdp.JointPositionActionCfg = MISSING
-    gripper_action: mdp.JointPositionActionCfg = MISSING
+    arm_action: mdp.ActionTermCfg = MISSING
+    gripper_action: mdp.ActionTermCfg = MISSING
 
 
 @configclass
@@ -111,8 +113,10 @@ class ObservationsCfg:
             func=mdp.image,
             params={"sensor_cfg": SceneEntityCfg("cam_top"), "data_type": "rgb", "normalize": False},
         )
-        eef_pos = ObsTerm(func=mdp.ee_frame_pos)
-        eef_quat = ObsTerm(func=mdp.ee_frame_quat)
+        ee_frame_state = ObsTerm(func=mdp.ee_frame_state, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "robot_cfg": SceneEntityCfg("robot")})
+        joint_pos_target = ObsTerm(func=mdp.joint_pos_target_name,
+            params={"joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "rh_r1_joint"],
+                    "asset_name": "robot"},)
 
         def __post_init__(self):
             self.enable_corruption = False
@@ -187,3 +191,41 @@ class PickupEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
         self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
         self.sim.physx.friction_correlation_distance = 0.00625
+
+    def init_action_cfg(self, mode: str):
+        print(f"Initializing action configuration for device: {mode}")
+        if mode in ['record']:
+            self.actions.arm_action = mdp.JointPositionActionCfg(
+                asset_name="robot",
+                joint_names=["joint.*"],
+                scale=1.0,
+                use_default_offset=False,
+            )
+            self.actions.gripper_action = mdp.JointPositionActionCfg(
+                asset_name="robot",
+                joint_names=["rh_r1_joint"],
+                scale=1.0,
+                use_default_offset=False,
+            )
+        elif mode in ['mimic_ik']:
+            self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
+            asset_name="robot",
+            joint_names=["joint[1-6]"],
+            body_name="link6",
+            controller=DifferentialIKControllerCfg(
+                command_type="pose", ik_params={"lambda_val": 0.05},
+                ik_method="dls",
+                use_relative_mode=False
+            ),
+            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, -0.248, 0.0]),
+            )
+            self.actions.gripper_action = mdp.JointPositionActionCfg(
+                asset_name="robot",
+                joint_names=["rh_r1_joint"],
+                scale=1.0,
+                use_default_offset=False,
+            )
+        else:
+            self.actions.arm_action = None
+            self.actions.gripper_action = None
+

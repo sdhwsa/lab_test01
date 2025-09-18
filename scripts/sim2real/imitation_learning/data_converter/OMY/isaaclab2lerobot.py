@@ -62,7 +62,7 @@ def process_data(dataset: LeRobotDataset, task: str, demo_group: h5py.Group, dem
     """
     try:
         # Load entire data arrays from HDF5
-        actions = np.array(demo_group['obs/actions'], dtype=np.float32)
+        actions = np.array(demo_group['actions'], dtype=np.float32)
         joint_pos = np.array(demo_group['obs/joint_pos'], dtype=np.float32)
         cam_wrist_images = np.array(demo_group['obs/cam_wrist'], dtype=np.uint8)
         cam_top_images = np.array(demo_group['obs/cam_top'], dtype=np.uint8)
