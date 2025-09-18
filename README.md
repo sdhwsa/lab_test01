@@ -198,3 +198,11 @@ Replace <2025-07-10_08-47-09> with the actual timestamp folder name under:
 logs/rsl_rl/reach_omy/
 ```
 </details>
+
+## License
+
+This repository is licensed under the **Apache 2.0 License**. See [LICENSE](LICENSE) for details.
+
+### Third-party components
+
+- **Isaac Lab**: BSD-3-Clause License, see [LICENSE-IsaacLab](LICENSE-IsaacLab)
