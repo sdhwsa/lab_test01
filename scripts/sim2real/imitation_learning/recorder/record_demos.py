@@ -206,6 +206,8 @@ def main():
                 env.render()
             # apply actions
             else:
+                if isinstance(actions, dict):
+                    pass
                 if actions.ndim == 1:
                     actions = actions.unsqueeze(0)
                 if not start_record_state:
