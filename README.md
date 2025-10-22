@@ -171,8 +171,8 @@ python scripts/imitation_learning/robomimic/play.py \
 https://github.com/user-attachments/assets/6c27bdb1-3a6b-4686-a546-8f14f01e4abe
 
 
-> [!IMPORTANT]
 >
+> **Important:**
 > More on OMY Hardware Setup:
 > For details on how to set up and operate the OMY robot, please refer to the [open_manipulator repo](https://github.com/ROBOTIS-GIT/open_manipulator.git)
 > 
@@ -206,7 +206,9 @@ logs/rsl_rl/reach_omy/
 <details>
 <summary>Imitation learning</summary>
 
-> [!IMPORTANT]
+>
+> **Important:**
+> 
 > For simulator-to-robot (Leader) communication:
 > You must install **robotis_dds_python**, which is required to synchronize the simulated robot with the real Leader using DDS communication.  
 > [robotis_dds_python GitHub Repository](https://github.com/ROBOTIS-GIT/robotis_dds_python)
