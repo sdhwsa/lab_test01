@@ -172,15 +172,15 @@ https://github.com/user-attachments/assets/6c27bdb1-3a6b-4686-a546-8f14f01e4abe
 
 
 > [!IMPORTANT]
+>
 > More on OMY Hardware Setup:
 > For details on how to set up and operate the OMY robot, please refer to the [open_manipulator repo](https://github.com/ROBOTIS-GIT/open_manipulator.git)
-> 
 > 
 > In this pipeline:
 > - The trained policy (exported as a TorchScript .pt file) is executed on the real robot using ROS 2.
 > - The robot receives joint state feedback and sends joint trajectory commands via a ROS 2 control interface.
 > - A TF frame for the sampled target pose is broadcast for visualization and debugging.
-
+>
 > Prerequisites
 > - A trained policy (under logs/rsl_rl/reach_omy/<TIMESTAMP>).
 > - ROS 2 Jazzy installed and sourced.
