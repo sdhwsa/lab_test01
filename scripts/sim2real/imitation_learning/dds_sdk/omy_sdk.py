@@ -88,13 +88,13 @@ class OMYSdk:
     def _keyboard_controls(self):
         print("\n[Control] Press keys to control the robot:")
         if self.mode == 'record':
-            print("[N] New demonstration (reset simulation and start new demo)")
-            print("[R] Reset simulation (observations continue)")
-            print("[B] Start robot control")
+            print("[N] Save successful episode and proceed to the next one")
+            print("[R] Skip failed episode (not saved) and proceed to the next one")
+            print("[B] Start recording the current episode")
         elif self.mode == 'inference':
-            print("[R] Reset simulation (observations continue)")
+            print("[N] Save successful episode and proceed to the next one")
+            print("[R] Skip failed episode (not saved) and proceed to the next one")
             print("[B] Start/Resume robot control")
-            print("Note: Images and joint states are always published\n")
 
     def _on_press(self, key):
         try:
