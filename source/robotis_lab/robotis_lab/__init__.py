@@ -6,7 +6,8 @@
 """Python module serving as a project/extension template."""
 
 # Register Gym environments.
-from .tasks import *
+from .simulation_tasks import *
+from .real_world_tasks import *
 
 # Register UI extensions.
 from .ui_extension_example import *
