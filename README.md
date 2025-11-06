@@ -224,6 +224,12 @@ pip install lerobot
 
 **OMY Pick and Place Task**
 
+Sim2Sim
+https://github.com/user-attachments/assets/a6e75e80-203f-47d1-974b-d4c5435c15bc
+
+Sim2Real
+https://github.com/user-attachments/assets/8ec9d245-f8e0-4bcc-b683-0ea2864de495
+
 ```bash
 # Teleop and record demos
 python scripts/sim2real/imitation_learning/recorder/record_demos.py --task=RobotisLab-Real-Pick-Place-Bottle-OMY-v0 --robot_type OMY --dataset_file ./datasets/omy_pick_place_task.hdf5 --num_demos 10 --enable_cameras
