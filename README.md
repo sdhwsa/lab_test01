@@ -161,6 +161,19 @@ python scripts/imitation_learning/robomimic/play.py \
 </details>
 
 ### Sim2Real
+>
+> **Important**
+>
+> OMY Hardware Setup:
+> To run Sim2Real with the real OMY robot, you need to bring up the robot.
+>
+> This can be done using ROBOTIS’s [open_manipulator repository](https://github.com/ROBOTIS-GIT/open_manipulator.git).
+> 
+> AI WORKER Hardware Setup:
+> To run Sim2Real with the real AI WORKER robot, you need to bring up the robot.
+>
+> This can be done using ROBOTIS’s [ai_worker repository](https://github.com/ROBOTIS-GIT/ai_worker.git).
+> 
 
 <details>
 <summary>Reinforcement learning</summary>
@@ -171,18 +184,6 @@ python scripts/imitation_learning/robomimic/play.py \
 https://github.com/user-attachments/assets/6c27bdb1-3a6b-4686-a546-8f14f01e4abe
 
 
->
-> **Important**
->
-> OMY Hardware Setup:
-> To run Sim2Real with the real OMY robot, you need to bring up the robot.
->
-> This can be done using ROBOTIS’s [open_manipulator repository](https://github.com/ROBOTIS-GIT/open_manipulator.git).
-> 
-> In this pipeline:
-> - The trained policy (exported as a TorchScript .pt file) is executed on the real robot using ROS 2.
-> - The robot receives joint state feedback and sends joint trajectory commands via a ROS 2 control interface.
-> - A TF frame for the sampled target pose is broadcast for visualization and debugging.
 >
 > Prerequisites
 > - A trained policy (under logs/rsl_rl/reach_omy/<TIMESTAMP>).
