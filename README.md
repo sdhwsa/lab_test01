@@ -174,7 +174,6 @@ python scripts/imitation_learning/robomimic/play.py \
 >
 > This can be done using ROBOTIS’s [ai_worker repository](https://github.com/ROBOTIS-GIT/ai_worker.git).
 > 
-
 <details>
 <summary>Reinforcement learning</summary>
 
