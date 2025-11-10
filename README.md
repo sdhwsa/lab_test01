@@ -6,7 +6,7 @@
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/22.04/)
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 
-![ISAAC_FFW_RL_reach_train (1)](https://github.com/user-attachments/assets/5ca984e9-acbb-4505-95d8-a2b04d3b3980)
+![ISAAC_FFW_RL_reach_train](https://github.com/user-attachments/assets/28347b4b-f90c-4a4f-8916-621f917d86cb)
 
 ## Overview
 
