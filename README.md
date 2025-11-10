@@ -225,10 +225,10 @@ pip install lerobot
 **OMY Pick and Place Task**
 
 **Sim2Sim**
-https://github.com/user-attachments/assets/a6e75e80-203f-47d1-974b-d4c5435c15bc
+![Sim2Sim demonstration](https://github.com/user-attachments/assets/a6e75e80-203f-47d1-974b-d4c5435c15bc)
 
-**Sim2Real**
-https://github.com/user-attachments/assets/8ec9d245-f8e0-4bcc-b683-0ea2864de495
+Sim2Real
+![Sim2Real demonstration](https://github.com/user-attachments/assets/8ec9d245-f8e0-4bcc-b683-0ea2864de495)
 
 ```bash
 # Teleop and record demos
