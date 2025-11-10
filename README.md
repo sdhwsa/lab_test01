@@ -6,7 +6,7 @@
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/22.04/)
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 
-![ISAAC_FFW_RL_reach_train (1)](https://github.com/user-attachments/assets/5ca984e9-acbb-4505-95d8-a2b04d3b3980)
+![ISAAC_FFW_RL_reach_train](https://github.com/user-attachments/assets/28347b4b-f90c-4a4f-8916-621f917d86cb)
 
 ## Overview
 
@@ -161,7 +161,19 @@ python scripts/imitation_learning/robomimic/play.py \
 </details>
 
 ### Sim2Real
-
+>
+> **Important**
+>
+> OMY Hardware Setup:
+> To run Sim2Real with the real OMY robot, you need to bring up the robot.
+>
+> This can be done using ROBOTIS’s [open_manipulator repository](https://github.com/ROBOTIS-GIT/open_manipulator.git).
+> 
+> AI WORKER Hardware Setup:
+> To run Sim2Real with the real AI WORKER robot, you need to bring up the robot.
+>
+> This can be done using ROBOTIS’s [ai_worker repository](https://github.com/ROBOTIS-GIT/ai_worker.git).
+> 
 <details>
 <summary>Reinforcement learning</summary>
 
@@ -171,18 +183,6 @@ python scripts/imitation_learning/robomimic/play.py \
 https://github.com/user-attachments/assets/6c27bdb1-3a6b-4686-a546-8f14f01e4abe
 
 
->
-> **Important**
->
-> OMY Hardware Setup:
-> To run Sim2Real with the real OMY robot, you need to bring up the robot.
->
-> This can be done using ROBOTIS’s [open_manipulator repository](https://github.com/ROBOTIS-GIT/open_manipulator.git).
-> 
-> In this pipeline:
-> - The trained policy (exported as a TorchScript .pt file) is executed on the real robot using ROS 2.
-> - The robot receives joint state feedback and sends joint trajectory commands via a ROS 2 control interface.
-> - A TF frame for the sampled target pose is broadcast for visualization and debugging.
 >
 > Prerequisites
 > - A trained policy (under logs/rsl_rl/reach_omy/<TIMESTAMP>).
@@ -217,12 +217,20 @@ logs/rsl_rl/reach_omy/
 > [robotis_dds_python GitHub Repository](https://github.com/ROBOTIS-GIT/robotis_dds_python)
 
 ```bash
-# install lerobot
-pip install lerobot
+# install lerobot ver 0.3.3
+pip install lerobot==0.3.3
 
 ```
 
 **OMY Pick and Place Task**
+
+**Sim2Sim**
+
+![Sim2Sim demonstration](https://github.com/user-attachments/assets/a6e75e80-203f-47d1-974b-d4c5435c15bc)
+
+**Sim2Real**
+
+![Sim2Real demonstration](https://github.com/user-attachments/assets/8ec9d245-f8e0-4bcc-b683-0ea2864de495)
 
 ```bash
 # Teleop and record demos
