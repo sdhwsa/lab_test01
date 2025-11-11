@@ -1,0 +1,142 @@
+# Copyright (c) 2024, Robotis Lab Project Developers.
+# All rights reserved.
+#
+# Based on Isaac Lab Dockerfile structure
+
+# Base image from NVIDIA Isaac Sim
+ARG ISAACSIM_BASE_IMAGE_ARG
+ARG ISAACSIM_VERSION_ARG
+FROM ${ISAACSIM_BASE_IMAGE_ARG}:${ISAACSIM_VERSION_ARG} AS base
+ENV ISAACSIM_VERSION=${ISAACSIM_VERSION_ARG}
+
+# Set default RUN shell to bash
+SHELL ["/bin/bash", "-c"]
+
+# Adds labels to the Dockerfile
+LABEL version="1.0.0"
+LABEL description="Dockerfile for building and running the Isaac Lab and robotis_lab framework inside Isaac Sim container image."
+
+# Arguments
+# Path to Isaac Sim root folder
+ARG ISAACSIM_ROOT_PATH_ARG
+ENV ISAACSIM_ROOT_PATH=${ISAACSIM_ROOT_PATH_ARG}
+# Path to the Robotis Lab directory
+ARG ROBOTISLAB_PATH_ARG
+ENV ROBOTISLAB_PATH=${ROBOTISLAB_PATH_ARG}
+# Home dir of docker user, typically '/root'
+ARG DOCKER_USER_HOME_ARG
+ENV DOCKER_USER_HOME=${DOCKER_USER_HOME_ARG}
+
+# Set environment variables
+ENV LANG=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    libglib2.0-0 \
+    ncurses-term \
+    wget \
+    curl \
+    vim \
+    && apt -y autoremove && apt clean autoclean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the Robotis Lab directory (files to exclude are defined in .dockerignore)
+COPY ../ ${ROBOTISLAB_PATH}
+
+# Set up a symbolic link between the installed Isaac Sim root folder and _isaac_sim
+RUN ln -sf ${ISAACSIM_ROOT_PATH} ${ROBOTISLAB_PATH}/_isaac_sim
+
+# Install Python dependencies
+RUN ${ISAACSIM_ROOT_PATH}/python.sh -m pip install --upgrade pip
+
+# Install toml dependency
+RUN ${ISAACSIM_ROOT_PATH}/python.sh -m pip install toml
+
+# for singularity usage, have to create the directories that will be binded
+RUN mkdir -p ${ISAACSIM_ROOT_PATH}/kit/cache && \
+    mkdir -p ${DOCKER_USER_HOME}/.cache/ov && \
+    mkdir -p ${DOCKER_USER_HOME}/.cache/pip && \
+    mkdir -p ${DOCKER_USER_HOME}/.cache/nvidia/GLCache &&  \
+    mkdir -p ${DOCKER_USER_HOME}/.nv/ComputeCache && \
+    mkdir -p ${DOCKER_USER_HOME}/.nvidia-omniverse/logs && \
+    mkdir -p ${DOCKER_USER_HOME}/.local/share/ov/data && \
+    mkdir -p ${DOCKER_USER_HOME}/Documents
+
+# for singularity usage, create NVIDIA binary placeholders
+RUN touch /bin/nvidia-smi && \
+    touch /bin/nvidia-debugdump && \
+    touch /bin/nvidia-persistenced && \
+    touch /bin/nvidia-cuda-mps-control && \
+    touch /bin/nvidia-cuda-mps-server && \
+    touch /etc/localtime && \
+    mkdir -p /var/run/nvidia-persistenced && \
+    touch /var/run/nvidia-persistenced/socket
+
+# Install Isaac Lab base (assuming it's a dependency)
+# Clone Isaac Lab if needed or install from source
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    cd /workspace && \
+    git clone https://github.com/isaac-sim/IsaacLab.git isaaclab && \
+    cd isaaclab && \
+    ${ISAACSIM_ROOT_PATH}/python.sh -m pip install -e ./source/isaaclab
+
+# Install LeRobot
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    cd /workspace && \
+    git clone https://github.com/huggingface/lerobot.git && \
+    cd lerobot && \
+    ${ISAACSIM_ROOT_PATH}/python.sh -m pip install -e .
+
+# Install CycloneDDS dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y --no-install-recommends \
+    libssl-dev \
+    && apt -y autoremove && apt clean autoclean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install CycloneDDS Python bindings
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    ${ISAACSIM_ROOT_PATH}/python.sh -m pip install cyclonedds
+
+# Install additional Python packages commonly used in robotics
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    ${ISAACSIM_ROOT_PATH}/python.sh -m pip install \
+    numpy \
+    scipy \
+    matplotlib \
+    opencv-python \
+    h5py \
+    tqdm \
+    pyyaml \
+    pandas
+
+# Install Robotis Lab package in development mode
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    if [ -f ${ROBOTISLAB_PATH}/source/robotis_lab/setup.py ] || [ -f ${ROBOTISLAB_PATH}/source/robotis_lab/pyproject.toml ]; then \
+        cd ${ROBOTISLAB_PATH}/source/robotis_lab && \
+        ${ISAACSIM_ROOT_PATH}/python.sh -m pip install -e .; \
+    fi
+
+# Set up aliases and environment
+RUN echo "export ROBOTISLAB_PATH=${ROBOTISLAB_PATH}" >> ${HOME}/.bashrc && \
+    echo "export ISAACLAB_PATH=/workspace/isaaclab" >> ${HOME}/.bashrc && \
+    echo "alias python=${ISAACSIM_ROOT_PATH}/python.sh" >> ${HOME}/.bashrc && \
+    echo "alias python3=${ISAACSIM_ROOT_PATH}/python.sh" >> ${HOME}/.bashrc && \
+    echo "alias pip='${ISAACSIM_ROOT_PATH}/python.sh -m pip'" >> ${HOME}/.bashrc && \
+    echo "alias pip3='${ISAACSIM_ROOT_PATH}/python.sh -m pip'" >> ${HOME}/.bashrc && \
+    echo "export TZ=$(date +%Z)" >> ${HOME}/.bashrc && \
+    echo "shopt -s histappend" >> /root/.bashrc && \
+    echo "PROMPT_COMMAND='history -a'" >> /root/.bashrc
+
+# make working directory as the Robotis Lab directory
+WORKDIR ${ROBOTISLAB_PATH}
+
+# Set entrypoint
+CMD ["/bin/bash"]

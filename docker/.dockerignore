@@ -1,0 +1,46 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Logs and outputs
+logs/
+outputs/
+*.log
+
+# Datasets (too large to include in image)
+datasets/*.hdf5
+datasets/*.h5
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+docker/
+.dockerignore
+
+# Documentation
+docs/_build/
+*.md
+
+# Cache directories
+.cache/
+.ruff_cache/
+
+# Temporary files
+*.tmp
+*.bak

@@ -1,0 +1,94 @@
+# Copyright (c) 2024, Robotis Lab Project Developers.
+# All rights reserved.
+
+# Extension fields for reusable configurations
+x-default-robotis-lab-volumes: &default-robotis-lab-volumes
+  # Isaac Sim cache volumes
+  - type: volume
+    source: isaac-cache-kit
+    target: ${DOCKER_ISAACSIM_ROOT_PATH}/kit/cache
+  - type: volume
+    source: isaac-cache-ov
+    target: ${DOCKER_USER_HOME}/.cache/ov
+  - type: volume
+    source: isaac-cache-pip
+    target: ${DOCKER_USER_HOME}/.cache/pip
+  - type: volume
+    source: isaac-cache-gl
+    target: ${DOCKER_USER_HOME}/.cache/nvidia/GLCache
+  - type: volume
+    source: isaac-cache-compute
+    target: ${DOCKER_USER_HOME}/.nv/ComputeCache
+  - type: volume
+    source: isaac-logs
+    target: ${DOCKER_USER_HOME}/.nvidia-omniverse/logs
+  - type: volume
+    source: isaac-carb-logs
+    target: ${DOCKER_ISAACSIM_ROOT_PATH}/kit/logs/Kit/Isaac-Sim
+  - type: volume
+    source: isaac-data
+    target: ${DOCKER_USER_HOME}/.local/share/ov/data
+  - type: volume
+    source: isaac-docs
+    target: ${DOCKER_USER_HOME}/Documents
+  # Bind mount for Robotis Lab source code
+  - type: bind
+    source: ../source
+    target: ${DOCKER_ROBOTISLAB_PATH}/source
+  - type: bind
+    source: ../scripts
+    target: ${DOCKER_ROBOTISLAB_PATH}/scripts
+  - type: bind
+    source: ../datasets
+    target: ${DOCKER_ROBOTISLAB_PATH}/datasets
+  - type: bind
+    source: ../logs
+    target: ${DOCKER_ROBOTISLAB_PATH}/logs
+  - type: bind
+    source: ../outputs
+    target: ${DOCKER_ROBOTISLAB_PATH}/outputs
+
+services:
+  robotis-lab-base:
+    image: robotis-lab-base${DOCKER_NAME_SUFFIX}:latest
+    container_name: robotis-lab-base${DOCKER_NAME_SUFFIX}
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.base
+      args:
+        - ISAACSIM_BASE_IMAGE_ARG=${ISAACSIM_BASE_IMAGE}
+        - ISAACSIM_VERSION_ARG=${ISAACSIM_VERSION}
+        - ISAACSIM_ROOT_PATH_ARG=${DOCKER_ISAACSIM_ROOT_PATH}
+        - ROBOTISLAB_PATH_ARG=${DOCKER_ROBOTISLAB_PATH}
+        - DOCKER_USER_HOME_ARG=${DOCKER_USER_HOME}
+      network: host
+    stdin_open: true
+    tty: true
+    network_mode: host
+    privileged: true
+    volumes: *default-robotis-lab-volumes
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ACCEPT_EULA=${ACCEPT_EULA}
+      - PRIVACY_CONSENT=Y
+    runtime: nvidia
+
+volumes:
+  isaac-cache-kit:
+  isaac-cache-ov:
+  isaac-cache-pip:
+  isaac-cache-gl:
+  isaac-cache-compute:
+  isaac-logs:
+  isaac-carb-logs:
+  isaac-data:
+  isaac-docs:
