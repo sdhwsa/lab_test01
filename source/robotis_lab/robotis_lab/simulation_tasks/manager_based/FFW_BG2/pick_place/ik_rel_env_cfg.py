@@ -38,7 +38,6 @@ class PickPlaceFFWBG2EnvCfg(joint_pos_env_cfg.PickPlaceFFWBG2EnvCfg):
         super().__post_init__()
 
         # Set FFW BG2 as robot
-        # We switch here to a stiffer PD controller for IK tracking to be better.
         self.scene.robot = FFW_BG2_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (FFW BG2)
