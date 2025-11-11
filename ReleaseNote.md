@@ -1,5 +1,9 @@
 # Robotis Lab Release Notes
 
+1.0.0 ()
+------------------
+Added docker (continue)
+
 0.2.0 (2025-10-28)
 ------------------
 ### OMY Sim2Real Imitation Learning Pipeline

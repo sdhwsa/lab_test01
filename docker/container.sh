@@ -53,6 +53,44 @@ load_env() {
     fi
 }
 
+# Configure X11 forwarding
+setup_x11() {
+    # Check if xauth is installed
+    if ! command -v xauth &> /dev/null; then
+        echo "[WARN] xauth is not installed. X11 forwarding will not work."
+        echo "[WARN] Install with: sudo apt install xauth"
+        return 1
+    fi
+    
+    # Check if DISPLAY is set
+    if [ -z "$DISPLAY" ]; then
+        echo "[WARN] DISPLAY variable is not set. X11 forwarding will not work."
+        return 1
+    fi
+    
+    # Create temporary directory for xauth
+    export __ROBOTISLAB_TMP_DIR=$(mktemp -d)
+    export __ROBOTISLAB_TMP_XAUTH="${__ROBOTISLAB_TMP_DIR}/.xauth"
+    
+    # Create xauth file
+    touch "${__ROBOTISLAB_TMP_XAUTH}"
+    xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f "${__ROBOTISLAB_TMP_XAUTH}" nmerge -
+    
+    echo "[INFO] X11 forwarding configured"
+    echo "[INFO] XAUTH file: ${__ROBOTISLAB_TMP_XAUTH}"
+    
+    return 0
+}
+
+# Check if X11 is available
+check_x11() {
+    if [ -n "$DISPLAY" ] && command -v xauth &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Build docker image
 build_image() {
     echo "[INFO] Building Robotis Lab docker image..."
@@ -66,6 +104,17 @@ start_container() {
     echo "[INFO] Starting Robotis Lab docker container..."
     cd "${DOCKER_DIR}"
     
+    # Setup X11 forwarding
+    X11_COMPOSE_FILE=""
+    if check_x11; then
+        if setup_x11; then
+            X11_COMPOSE_FILE="-f x11.yaml"
+            echo "[INFO] X11 forwarding enabled"
+        fi
+    else
+        echo "[INFO] X11 forwarding not available (no DISPLAY or xauth)"
+    fi
+    
     # Check if container is already running
     if docker ps | grep -q "robotis-lab-base"; then
         echo "[INFO] Container is already running"
@@ -75,10 +124,10 @@ start_container() {
     # Check if container exists but is stopped
     if docker ps -a | grep -q "robotis-lab-base"; then
         echo "[INFO] Starting existing container..."
-        docker compose start robotis-lab-base
+        docker compose ${X11_COMPOSE_FILE} start robotis-lab-base
     else
         echo "[INFO] Creating and starting new container..."
-        docker compose up -d robotis-lab-base
+        docker compose -f docker-compose.yaml ${X11_COMPOSE_FILE} up -d robotis-lab-base
     fi
     
     echo "[INFO] Container started successfully!"
@@ -95,7 +144,8 @@ enter_container() {
         exit 1
     fi
     
-    docker exec -it robotis-lab-base${DOCKER_NAME_SUFFIX} /bin/bash
+    # Pass DISPLAY environment variable to the container
+    docker exec -it -e DISPLAY="${DISPLAY}" robotis-lab-base${DOCKER_NAME_SUFFIX} /bin/bash
 }
 
 # Stop container

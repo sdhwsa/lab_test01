@@ -31,6 +31,29 @@ x-default-robotis-lab-volumes: &default-robotis-lab-volumes
   - type: volume
     source: isaac-docs
     target: ${DOCKER_USER_HOME}/Documents
+  # Bind mount for Isaac Lab (for development)
+  - type: bind
+    source: ../../IsaacLab/source
+    target: ${DOCKER_ISAACLAB_PATH}/source
+  - type: bind
+    source: ../../IsaacLab/scripts
+    target: ${DOCKER_ISAACLAB_PATH}/scripts
+  - type: bind
+    source: ../../IsaacLab/docs
+    target: ${DOCKER_ISAACLAB_PATH}/docs
+  - type: bind
+    source: ../../IsaacLab/tools
+    target: ${DOCKER_ISAACLAB_PATH}/tools
+  # Isaac Lab volumes for artifacts
+  - type: volume
+    source: isaac-lab-docs
+    target: ${DOCKER_ISAACLAB_PATH}/docs/_build
+  - type: volume
+    source: isaac-lab-logs
+    target: ${DOCKER_ISAACLAB_PATH}/logs
+  - type: volume
+    source: isaac-lab-data
+    target: ${DOCKER_ISAACLAB_PATH}/data_storage
   # Bind mount for Robotis Lab source code
   - type: bind
     source: ../source
@@ -41,17 +64,42 @@ x-default-robotis-lab-volumes: &default-robotis-lab-volumes
   - type: bind
     source: ../datasets
     target: ${DOCKER_ROBOTISLAB_PATH}/datasets
-  - type: bind
-    source: ../logs
+  # Robotis Lab volumes for outputs
+  - type: volume
+    source: robotis-lab-logs
     target: ${DOCKER_ROBOTISLAB_PATH}/logs
-  - type: bind
-    source: ../outputs
+  - type: volume
+    source: robotis-lab-outputs
     target: ${DOCKER_ROBOTISLAB_PATH}/outputs
+  # Bash history
+  - type: bind
+    source: .robotis-lab-docker-history
+    target: ${DOCKER_USER_HOME}/.bash_history
+
+x-default-robotis-lab-environment: &default-robotis-lab-environment
+  - ISAACSIM_PATH=${DOCKER_ISAACSIM_ROOT_PATH}
+  - ISAACLAB_PATH=${DOCKER_ISAACLAB_PATH}
+  - ROBOTISLAB_PATH=${DOCKER_ROBOTISLAB_PATH}
+  - OMNI_KIT_ALLOW_ROOT=1
+  - ACCEPT_EULA=${ACCEPT_EULA}
+  - PRIVACY_CONSENT=Y
+  - NVIDIA_VISIBLE_DEVICES=all
+  - NVIDIA_DRIVER_CAPABILITIES=all
+
+x-default-robotis-lab-deploy: &default-robotis-lab-deploy
+  resources:
+    reservations:
+      devices:
+        - driver: nvidia
+          count: all
+          capabilities: [ gpu ]
 
 services:
   robotis-lab-base:
-    image: robotis-lab-base${DOCKER_NAME_SUFFIX}:latest
-    container_name: robotis-lab-base${DOCKER_NAME_SUFFIX}
+    profiles: [ "base" ]
+    env_file: .env.base
+    image: robotis-lab-base${DOCKER_NAME_SUFFIX-}:latest
+    container_name: robotis-lab-base${DOCKER_NAME_SUFFIX-}
     build:
       context: ../
       dockerfile: docker/Dockerfile.base
@@ -59,6 +107,7 @@ services:
         - ISAACSIM_BASE_IMAGE_ARG=${ISAACSIM_BASE_IMAGE}
         - ISAACSIM_VERSION_ARG=${ISAACSIM_VERSION}
         - ISAACSIM_ROOT_PATH_ARG=${DOCKER_ISAACSIM_ROOT_PATH}
+        - ISAACLAB_PATH_ARG=${DOCKER_ISAACLAB_PATH}
         - ROBOTISLAB_PATH_ARG=${DOCKER_ROBOTISLAB_PATH}
         - DOCKER_USER_HOME_ARG=${DOCKER_USER_HOME}
       network: host
@@ -67,20 +116,8 @@ services:
     network_mode: host
     privileged: true
     volumes: *default-robotis-lab-volumes
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    environment:
-      - DISPLAY=${DISPLAY}
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - ACCEPT_EULA=${ACCEPT_EULA}
-      - PRIVACY_CONSENT=Y
-    runtime: nvidia
+    environment: *default-robotis-lab-environment
+    deploy: *default-robotis-lab-deploy
 
 volumes:
   isaac-cache-kit:
@@ -92,3 +129,8 @@ volumes:
   isaac-carb-logs:
   isaac-data:
   isaac-docs:
+  isaac-lab-docs:
+  isaac-lab-logs:
+  isaac-lab-data:
+  robotis-lab-logs:
+  robotis-lab-outputs:
