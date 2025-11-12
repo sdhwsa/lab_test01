@@ -29,8 +29,9 @@ datasets/*.h5
 *.swo
 *~
 
-# Docker
-docker/
+# Docker (exclude everything except entrypoint.sh)
+docker/*
+!docker/entrypoint.sh
 .dockerignore
 
 # Documentation
