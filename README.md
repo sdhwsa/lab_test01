@@ -164,7 +164,7 @@ python scripts/imitation_learning/robomimic/play.py \
 
 ```bash
 # Teleop and record
-python scripts/tools/record_demos.py --task RobotisLab-PickPlace-FFW-BG2-IK-Rel-v0 --teleop_device keyboard --dataset_file ./datasets/dataset.hdf5 --num_demos 10 --enable_cameras
+python scripts/imitation_learning/isaaclab_recorder/record_demos.py --task RobotisLab-PickPlace-FFW-BG2-IK-Rel-v0 --teleop_device keyboard --dataset_file ./datasets/dataset.hdf5 --num_demos 10 --enable_cameras
 
 # Annotate
 python scripts/imitation_learning/isaaclab_mimic/annotate_demos.py --device cuda --task RobotisLab-PickPlace-FFW-BG2-Mimic-v0 --input_file ./datasets/dataset.hdf5 --output_file ./datasets/annotated_dataset.hdf5 --enable_cameras
@@ -199,6 +199,9 @@ python scripts/imitation_learning/robomimic/play.py \
 > To run Sim2Real with the real AI WORKER robot, you need to bring up the robot.
 >
 > This can be done using ROBOTIS’s [ai_worker repository](https://github.com/ROBOTIS-GIT/ai_worker.git).
+>
+> The training and inference of the collected dataset should be carried out using physical_ai_tools.
+> [physical_ai_tools](https://github.com/ROBOTIS-GIT/physical_ai_tools)
 >
 
 <details>
