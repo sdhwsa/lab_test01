@@ -85,11 +85,11 @@ x-default-robotis-lab-deploy: &default-robotis-lab-deploy
           capabilities: [ gpu ]
 
 services:
-  robotis-lab-base:
+  robotis-lab:
     profiles: [ "base" ]
     env_file: .env.base
-    image: robotis-lab-base${DOCKER_NAME_SUFFIX-}:latest
-    container_name: robotis-lab-base${DOCKER_NAME_SUFFIX-}
+    image: robotis/robotis-lab${DOCKER_NAME_SUFFIX-}:latest
+    container_name: robotis_lab${DOCKER_NAME_SUFFIX-}
     build:
       context: ../
       dockerfile: docker/Dockerfile.base

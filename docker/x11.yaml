@@ -4,7 +4,7 @@
 # Based on Isaac Lab x11.yaml
 
 services:
-  robotis-lab-base:
+  robotis-lab:
     environment:
       - DISPLAY
       - TERM

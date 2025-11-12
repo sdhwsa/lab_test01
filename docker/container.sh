@@ -95,7 +95,7 @@ check_x11() {
 build_image() {
     echo "[INFO] Building Robotis Lab docker image..."
     cd "${DOCKER_DIR}"
-    docker compose build robotis-lab-base
+    docker compose build robotis-lab
     echo "[INFO] Build complete!"
 }
 
@@ -116,18 +116,18 @@ start_container() {
     fi
     
     # Check if container is already running
-    if docker ps | grep -q "robotis-lab-base"; then
+    if docker ps | grep -q "robotis-lab"; then
         echo "[INFO] Container is already running"
         return 0
     fi
     
     # Check if container exists but is stopped
-    if docker ps -a | grep -q "robotis-lab-base"; then
+    if docker ps -a | grep -q "robotis-lab"; then
         echo "[INFO] Starting existing container..."
-        docker compose ${X11_COMPOSE_FILE} start robotis-lab-base
+        docker compose ${X11_COMPOSE_FILE} start robotis-lab
     else
         echo "[INFO] Creating and starting new container..."
-        docker compose -f docker-compose.yaml ${X11_COMPOSE_FILE} up -d robotis-lab-base
+        docker compose -f docker-compose.yaml ${X11_COMPOSE_FILE} up -d robotis-lab
     fi
     
     echo "[INFO] Container started successfully!"
@@ -139,20 +139,20 @@ enter_container() {
     echo "[INFO] Entering Robotis Lab docker container..."
     
     # Check if container is running
-    if ! docker ps | grep -q "robotis-lab-base"; then
+    if ! docker ps | grep -q "robotis-lab"; then
         echo "[ERROR] Container is not running. Start it first with './docker/container.sh start'"
         exit 1
     fi
     
     # Pass DISPLAY environment variable to the container
-    docker exec -it -e DISPLAY="${DISPLAY}" robotis-lab-base${DOCKER_NAME_SUFFIX} /bin/bash
+    docker exec -it -e DISPLAY="${DISPLAY}" robotis-lab${DOCKER_NAME_SUFFIX} /bin/bash
 }
 
 # Stop container
 stop_container() {
     echo "[INFO] Stopping Robotis Lab docker container..."
     cd "${DOCKER_DIR}"
-    docker compose stop robotis-lab-base
+    docker compose stop robotis-lab
     echo "[INFO] Container stopped"
 }
 
@@ -164,8 +164,8 @@ clean_docker() {
     read -p "This will remove the container and image. Continue? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker compose down robotis-lab-base
-        docker rmi robotis-lab-base${DOCKER_NAME_SUFFIX}:latest || true
+        docker compose down robotis-lab
+        docker rmi robotis-lab${DOCKER_NAME_SUFFIX}:latest || true
         echo "[INFO] Cleanup complete"
     else
         echo "[INFO] Cleanup cancelled"
@@ -176,7 +176,7 @@ clean_docker() {
 show_logs() {
     echo "[INFO] Showing Robotis Lab container logs..."
     cd "${DOCKER_DIR}"
-    docker compose logs -f robotis-lab-base
+    docker compose logs -f robotis-lab
 }
 
 #==
