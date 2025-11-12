@@ -85,7 +85,7 @@ x-default-robotis-lab-deploy: &default-robotis-lab-deploy
           capabilities: [ gpu ]
 
 services:
-  robotis-lab:
+  robotis_lab:
     profiles: [ "base" ]
     env_file: .env.base
     image: robotis/robotis-lab${DOCKER_NAME_SUFFIX-}:latest
