@@ -56,6 +56,9 @@ def set_default_joint_pose(
     if default_pose_tensor.dim() == 1:
         default_pose_tensor = default_pose_tensor.unsqueeze(0).repeat(len(env_ids), 1)
     
+    # Set default joint positions for the asset
+    asset.data.default_joint_pos[env_ids] = default_pose_tensor
+
     # Set joint positions
     asset.set_joint_position_target(default_pose_tensor, env_ids=env_ids)
     asset.write_joint_state_to_sim(default_pose_tensor, torch.zeros_like(default_pose_tensor), env_ids=env_ids)
