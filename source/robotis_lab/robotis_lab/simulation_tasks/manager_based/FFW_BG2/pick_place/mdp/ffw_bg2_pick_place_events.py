@@ -36,14 +36,7 @@ if TYPE_CHECKING:
 
 def create_joint_position_mapping(joint_names: list[str], desired_values: dict[str, float]) -> torch.Tensor:
     """Create a tensor with joint positions in the correct order based on joint names."""
-    joint_positions = []
-    
-    for joint_name in joint_names:
-        if joint_name in desired_values:
-            joint_positions.append(desired_values[joint_name])
-        else:
-            joint_positions.append(0.0)  # Default value
-    
+    joint_positions = [desired_values.get(joint_name, 0.0) for joint_name in joint_names]
     return torch.tensor(joint_positions, dtype=torch.float32)
 
 def set_default_joint_pose(
