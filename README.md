@@ -64,6 +64,7 @@ Docker installation provides a consistent environment with all dependencies pre-
 - Isaac Lab v2.3.0 (from third_party submodule)
 - CycloneDDS 0.10.2 (from third_party submodule)
 - robotis_dds_python (from third_party submodule)
+- LeRobot 0.3.3 (in separate virtual environment at `~/lerobot_env`)
 - All required dependencies and configurations
 
 ## Try examples
@@ -274,7 +275,10 @@ python scripts/sim2real/imitation_learning/mimic/action_data_converter.py --inpu
 ```bash
 
 # Data convert lerobot dataset from IsaacLab hdf dataset
-python scripts/sim2real/imitation_learning/data_converter/OMY/isaaclab2lerobot.py --task=RobotisLab-Real-Pick-Place-Bottle-OMY-v0 --robot_type OMY --dataset_file ./datasets/<processed_omy_pick_place_task.hdf5> or <processed_generated_dataset.hdf5>
+lerobot-python scripts/sim2real/imitation_learning/data_converter/OMY/isaaclab2lerobot.py \
+    --task=RobotisLab-Real-Pick-Place-Bottle-OMY-v0 \
+    --robot_type OMY \
+    --dataset_file ./datasets/<processed_omy_pick_place_task.hdf5> or ./datasets/<processed_generated_dataset.hdf5>
 
 ```
 

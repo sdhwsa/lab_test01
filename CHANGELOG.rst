@@ -1,6 +1,11 @@
 # Changelog for package robotis_lab
 
-0.2.2 (2025-12-05)
+1.0.0 (2025-11-14)
+------------------
+
+* Contributors: Taehyeong Kim
+
+0.2.2 (2025-11-14)
 ------------------
 ### Fixed
 * Resolved a problem where the initial pose for the pick-and-place task using the FFW_BG2 model was not being applied correctly.
@@ -15,10 +20,6 @@
 
 ### Documentation Update
 * Renamed ReleaseNote.md to CHANGELOG.rst for better standardization and readability.
-
-1.0.0 ()
-------------------
-Added docker (continue)
 
 0.2.0 (2025-10-28)
 ------------------

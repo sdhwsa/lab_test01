@@ -14,11 +14,5 @@ if [ ! -L "${ISAACLAB_PATH}/_isaac_sim" ]; then
     ln -sf ${ISAACSIM_ROOT_PATH} ${ISAACLAB_PATH}/_isaac_sim
 fi
 
-# Create symbolic link from Isaac Sim to Robotis Lab root
-if [ ! -L "${ROBOTISLAB_PATH}/_isaac_sim" ]; then
-    echo "[INFO] Creating symbolic link: ${ROBOTISLAB_PATH}/_isaac_sim -> ${ISAACSIM_ROOT_PATH}"
-    ln -sf ${ISAACSIM_ROOT_PATH} ${ROBOTISLAB_PATH}/_isaac_sim
-fi
-
 # Execute the command passed to docker run
 exec "$@"
