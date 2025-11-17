@@ -117,7 +117,7 @@ start_container() {
     fi
     
     # Check if container is already running
-    if docker ps | grep -q "robotis_lab"; then
+    if [ -n "$(docker ps -q --filter "name=^robotis_lab${DOCKER_NAME_SUFFIX}$")" ]; then
         echo "[INFO] Container is already running"
         return 0
     fi
