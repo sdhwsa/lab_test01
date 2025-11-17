@@ -202,7 +202,7 @@ python scripts/imitation_learning/robomimic/play.py \
 > This can be done using ROBOTIS’s [ai_worker repository](https://github.com/ROBOTIS-GIT/ai_worker.git).
 >
 > The training and inference of the collected dataset should be carried out using physical_ai_tools.
-> [physical_ai_tools](https://github.com/ROBOTIS-GIT/physical_ai_tools)
+> This can be done using ROBOTIS’s [physical_ai_tools](https://github.com/ROBOTIS-GIT/physical_ai_tools)
 >
 
 <details>
