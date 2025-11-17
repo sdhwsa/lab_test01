@@ -92,7 +92,6 @@ check_x11() {
 }
 
 # Build docker image
-# Build docker image
 build_image() {
     echo "[INFO] Building Robotis Lab docker image..."
     cd "${DOCKER_DIR}"
