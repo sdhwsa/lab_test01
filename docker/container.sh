@@ -140,7 +140,7 @@ enter_container() {
     echo "[INFO] Entering Robotis Lab docker container..."
     
     # Check if container is running
-    if ! docker ps | grep -q "robotis_lab"; then
+    if [ -z "$(docker ps -q --filter "name=^robotis_lab${DOCKER_NAME_SUFFIX}$")" ]; then
         echo "[ERROR] Container is not running. Start it first with './docker/container.sh start'"
         exit 1
     fi
