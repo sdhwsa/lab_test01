@@ -122,7 +122,7 @@ start_container() {
     fi
     
     # Check if container exists but is stopped
-    if docker ps -a | grep -q "robotis_lab"; then
+    if [ -n "$(docker ps -aq --filter "name=^robotis_lab${DOCKER_NAME_SUFFIX}$")" ]; then
         echo "[INFO] Starting existing container..."
         docker compose ${X11_COMPOSE_FILE} start robotis_lab
     else
