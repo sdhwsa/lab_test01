@@ -88,8 +88,8 @@ services:
   robotis_lab:
     profiles: [ "base" ]
     env_file: .env.base
-    image: robotis/robotis-lab${DOCKER_NAME_SUFFIX-}:latest
-    container_name: robotis_lab${DOCKER_NAME_SUFFIX-}
+    image: robotis/robotis-lab${DOCKER_NAME_SUFFIX}:latest
+    container_name: robotis_lab${DOCKER_NAME_SUFFIX}
     build:
       context: ../
       dockerfile: docker/Dockerfile.base
