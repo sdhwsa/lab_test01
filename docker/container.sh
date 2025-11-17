@@ -166,7 +166,7 @@ clean_docker() {
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         docker compose down robotis_lab
-        docker rmi robotis_lab${DOCKER_NAME_SUFFIX}:latest || true
+        docker rmi robotis/robotis-lab${DOCKER_NAME_SUFFIX}:latest || true
         echo "[INFO] Cleanup complete"
     else
         echo "[INFO] Cleanup cancelled"
