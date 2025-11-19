@@ -115,7 +115,7 @@ def process_data(dataset: LeRobotDataset, task: str, demo_group: h5py.Group, dem
 
 def convert_isaaclab_to_lerobot(
     task: str, repo_id: str, robot_type: str, dataset_file: str,
-    fps: int, push_to_hub: bool = False, frame_skip: int = 3
+    fps: int, push_to_hub: bool = False, frame_skip: int = 3, root: str = "./datasets/lerobot/omy_data"
 ):
     """
     Convert an IsaacLab HDF5 dataset into LeRobot dataset format.
@@ -129,6 +129,7 @@ def convert_isaaclab_to_lerobot(
         fps=fps,
         robot_type=robot_type,
         features=get_env_features(fps),
+        root=root,
     )
 
     # Process each HDF5 dataset file
@@ -168,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument("--frame_skip", type=int, default=2, help="Frame skip rate (default: 2)")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    default_repo_id = f"data/{timestamp}"
+    default_repo_id = f"./datasets/lerobot/{timestamp}"
     parser.add_argument("--repo_id", type=str, default=default_repo_id, help=f"Repo ID (default: {default_repo_id})")
 
     args = parser.parse_args()
@@ -180,5 +181,6 @@ if __name__ == "__main__":
         dataset_file=args.dataset_file,
         fps=args.fps,
         push_to_hub=args.push_to_hub,
-        frame_skip=args.frame_skip
+        frame_skip=args.frame_skip,
+        root=default_repo_id,
     )

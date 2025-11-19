@@ -17,28 +17,55 @@ This project provides simulation environments, configuration tools, and task def
 > This repository currently depends on **IsaacLab v2.2.0** or higher.
 >
 
-## Installation
+## Installation (Docker)
 
-- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html). We recommend using the conda installation as it simplifies calling Python scripts from the terminal.
+Docker installation provides a consistent environment with all dependencies pre-installed.
 
-- Clone the robotis_lab Repository (i.e. outside the `IsaacLab` directory):
+**Prerequisites:**
+- Docker and Docker Compose installed
+- NVIDIA Container Toolkit installed
+- NVIDIA GPU with appropriate drivers
 
-  ```bash
-  git clone https://github.com/ROBOTIS-GIT/robotis_lab.git
-  ```
+**Steps:**
 
-- Install the robotis_lab Package
+1. Clone robotis_lab repository with submodules:
 
-  ```bash
-  cd robotis_lab && python -m pip install -e source/robotis_lab
+   ```bash
+   git clone --recurse-submodules https://github.com/ROBOTIS-GIT/robotis_lab.git
+   cd robotis_lab
+   ```
 
-  ```
+   If you already cloned without submodules, initialize them:
+   ```bash
+   git submodule update --init --recursive
+   ```
 
-- Verify that the extension is correctly installed by running the following command to print all the available environments in the extension:
+2. Build and start the Docker container:
 
-  ```bash
-  python scripts/tools/list_envs.py
-  ```
+   ```bash
+   ./docker/container.sh start
+   ```
+
+3. Enter the container:
+
+   ```bash
+   ./docker/container.sh enter
+   ```
+
+**Docker Commands:**
+- `./docker/container.sh start` - Build and start the container
+- `./docker/container.sh enter` - Enter the running container
+- `./docker/container.sh stop` - Stop the container
+- `./docker/container.sh logs` - View container logs
+- `./docker/container.sh clean` - Remove container and image
+
+**What's included in the Docker image:**
+- Isaac Sim 5.1.0
+- Isaac Lab v2.3.0 (from third_party submodule)
+- CycloneDDS 0.10.2 (from third_party submodule)
+- robotis_dds_python (from third_party submodule)
+- LeRobot 0.3.3 (in separate virtual environment at `~/lerobot_env`)
+- All required dependencies and configurations
 
 ## Try examples
 
@@ -173,13 +200,9 @@ python scripts/imitation_learning/robomimic/play.py \
 > To run Sim2Real with the real AI WORKER robot, you need to bring up the robot.
 >
 > This can be done using ROBOTIS’s [ai_worker repository](https://github.com/ROBOTIS-GIT/ai_worker.git).
-> 
-> For real world leader to simulator communication:
-> You must install **robotis_dds_python**, which is required to synchronize the simulated robot with the real Leader using DDS communication.  
-> [robotis_dds_python GitHub Repository](https://github.com/ROBOTIS-GIT/robotis_dds_python)
 >
 > The training and inference of the collected dataset should be carried out using physical_ai_tools.
-> [physical_ai_tools](https://github.com/ROBOTIS-GIT/physical_ai_tools)
+> This can be done using ROBOTIS’s [physical_ai_tools](https://github.com/ROBOTIS-GIT/physical_ai_tools)
 >
 
 <details>
@@ -211,13 +234,6 @@ logs/rsl_rl/reach_omy/
 
 <details>
 <summary>Imitation learning</summary>
-
-
-```bash
-# install lerobot ver 0.3.3
-pip install lerobot==0.3.3
-
-```
 
 **OMY Pick and Place Task**
 
@@ -259,7 +275,10 @@ python scripts/sim2real/imitation_learning/mimic/action_data_converter.py --inpu
 ```bash
 
 # Data convert lerobot dataset from IsaacLab hdf dataset
-python scripts/sim2real/imitation_learning/data_converter/OMY/isaaclab2lerobot.py --task=RobotisLab-Real-Pick-Place-Bottle-OMY-v0 --robot_type OMY --dataset_file ./datasets/<processed_omy_pick_place_task.hdf5> or <processed_generated_dataset.hdf5>
+lerobot-python scripts/sim2real/imitation_learning/data_converter/OMY/isaaclab2lerobot.py \
+    --task=RobotisLab-Real-Pick-Place-Bottle-OMY-v0 \
+    --robot_type OMY \
+    --dataset_file ./datasets/<processed_omy_pick_place_task.hdf5> or ./datasets/<processed_generated_dataset.hdf5>
 
 ```
 

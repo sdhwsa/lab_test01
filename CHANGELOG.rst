@@ -1,6 +1,37 @@
 # Changelog for package robotis_lab
 
-0.2.2 (2025-12-05)
+1.0.0 (2025-11-17)
+------------------
+### Added
+* Added comprehensive Docker containerization for consistent development environment
+* Docker Infrastructure:
+    * Created `Dockerfile.base` based on NVIDIA Isaac Sim container image
+    * Implemented multi-stage build with Isaac Lab and Robotis Lab integration
+    * Added `docker-compose.yaml` with volume management for caches, logs, and datasets
+    * Created `container.sh` management script with build, start, enter, stop, clean, and logs commands
+    * Implemented X11 forwarding support for GUI applications through `x11.yaml`
+    * Added `entrypoint.sh` for runtime symbolic link setup
+    * Configured `.dockerignore` files to optimize build context
+* Dependencies Installation:
+    * Automated CycloneDDS build and installation from third_party submodule
+    * Integrated robotis_dds_python installation from third_party submodule
+    * Created separate Python virtual environment for LeRobot with version 0.3.3
+    * Installed Isaac Lab and all required dependencies
+* Container Features:
+    * Volume persistence for Isaac Sim caches, logs, and data
+    * Bind mounts for source code, scripts, datasets, and third_party submodules
+    * GPU acceleration support via NVIDIA Container Toolkit
+    * Bash history preservation across container sessions
+    * Pre-configured environment variables and command aliases
+    * Network host mode for seamless communication
+* Configuration:
+    * Added `.env.base` for centralized environment configuration
+    * Support for Isaac Sim 5.1.0 as default version
+    * Customizable paths and container naming
+
+* Contributors: Taehyeong Kim
+
+0.2.2 (2025-11-14)
 ------------------
 ### Fixed
 * Resolved a problem where the initial pose for the pick-and-place task using the FFW_BG2 model was not being applied correctly.
