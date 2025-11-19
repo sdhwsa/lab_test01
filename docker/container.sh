@@ -201,7 +201,7 @@ show_logs() {
 
 # check argument provided
 if [ -z "$*" ]; then
-    echo "[Error] No arguments provided." >&2
+    echo "[ERROR] No arguments provided." >&2
     print_help
     exit 1
 fi
@@ -234,7 +234,7 @@ case "$1" in
         exit 0
         ;;
     *)
-        echo "[Error] Invalid command: $1"
+        echo "[ERROR] Invalid command: $1"
         print_help
         exit 1
         ;;
