@@ -31,7 +31,14 @@ from isaaclab.app import AppLauncher
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="robotis_lab teleoperation for robotis_lab environments.")
-parser.add_argument("--robot_type", type=str, default="keyboard", choices=['OMY'], help="Type of robot to use for teleoperation.")
+parser.add_argument("--robot_type", type=str, default="keyboard", choices=['OMY', 'OMX', 'SO101'], help="Type of robot to use for teleoperation.")
+parser.add_argument(
+    "--teleop_device",
+    type=str,
+    default="dds",
+    choices=["dds", "keyboard"],
+    help="Teleoperation device to use. 'dds' uses the robot SDK, 'keyboard' uses Se3Keyboard.",
+)
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=42, help="Seed for the environment.")
 
@@ -106,7 +113,10 @@ def main():
         os.makedirs(output_dir)
 
     env_cfg = parse_env_cfg(args_cli.task, device=args_cli.device, num_envs=1)
-    env_cfg.init_action_cfg("record")
+    if args_cli.teleop_device == "keyboard":
+        env_cfg.init_action_cfg("teleop_ik")
+    else:
+        env_cfg.init_action_cfg("record")
     env_cfg.seed = args_cli.seed
     task_name = args_cli.task
 
@@ -136,13 +146,31 @@ def main():
     env.recorder_manager.cfg.dataset_export_mode = DatasetExportMode.EXPORT_NONE
 
     # create controller
-    if args_cli.robot_type == "OMY":
-        from dds_sdk.omy_sdk import OMYSdk
-        teleop_interface = OMYSdk(env, mode='record')
+    if args_cli.teleop_device == "keyboard":
+        from isaaclab.devices import Se3Keyboard, Se3KeyboardCfg
+        teleop_interface = Se3Keyboard(Se3KeyboardCfg(pos_sensitivity=0.1, rot_sensitivity=0.25))
     else:
-        raise ValueError(
-            f"Invalid device interface '{args_cli.robot_type}'. Supported: 'OMY'."
-        )
+        if args_cli.robot_type == "OMY":
+            from dds_sdk.omy_sdk import OMYSdk
+            teleop_interface = OMYSdk(env, mode='record')
+        elif args_cli.robot_type == "OMX":
+            from dds_sdk.omy_sdk import OMYSdk
+            teleop_interface = OMYSdk(
+                env,
+                mode='record',
+                joint_names=["joint1", "joint2", "joint3", "joint4", "joint5", "gripper_joint_1"],
+            )
+        elif args_cli.robot_type == "SO101":
+            from dds_sdk.omy_sdk import OMYSdk
+            teleop_interface = OMYSdk(
+                env,
+                mode='record',
+                joint_names=["joint1", "joint2", "joint3", "joint4", "joint5", "gripper_joint_1"],
+            )
+        else:
+            raise ValueError(
+                f"Invalid device interface '{args_cli.robot_type}'. Supported: 'OMY', 'OMX', 'SO101'."
+            )
 
     # add teleoperation key for env reset
     should_reset_recording_instance = False
@@ -176,8 +204,11 @@ def main():
     while simulation_app.is_running():
         # run everything in inference mode
         with torch.inference_mode():
-            teleop_interface.publish_observations()
-            actions = teleop_interface.get_action()
+            if args_cli.teleop_device == "keyboard":
+                actions = teleop_interface.advance()
+            else:
+                teleop_interface.publish_observations()
+                actions = teleop_interface.get_action()
             if should_reset_task_success:
                 print("Task Success!!!")
                 should_reset_task_success = False

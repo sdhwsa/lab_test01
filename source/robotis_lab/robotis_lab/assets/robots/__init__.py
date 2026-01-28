@@ -33,5 +33,8 @@ ROBOTIS_LAB_ASSETS_METADATA = toml.load(os.path.join(ROBOTIS_LAB_ASSETS_EXT_DIR,
 __version__ = ROBOTIS_LAB_ASSETS_METADATA["package"]["version"]
 
 from .OMY import *
+from .OMX import *
+from .SO101 import *
+from .SO101_dual import *
 from .FFW_BG2 import *
 from .FFW_SG2 import *

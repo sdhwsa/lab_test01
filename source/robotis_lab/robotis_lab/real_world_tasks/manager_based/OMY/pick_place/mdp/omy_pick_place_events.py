@@ -76,6 +76,8 @@ def randomize_joint_by_gaussian_offset(
     asset.write_joint_state_to_sim(joint_pos, joint_vel, env_ids=env_ids)
 
 
+
+
 def sample_object_poses(
     num_objects: int,
     min_separation: float = 0.0,

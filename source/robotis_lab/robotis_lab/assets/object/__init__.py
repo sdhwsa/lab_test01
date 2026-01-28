@@ -33,5 +33,8 @@ ROBOTIS_LAB_OBJECT_ASSETS_METADATA = toml.load(os.path.join(ROBOTIS_LAB_OBJECT_A
 __version__ = ROBOTIS_LAB_OBJECT_ASSETS_METADATA["package"]["version"]
 
 from .robotis_omy_table import *
+from .sdh_omx_table1 import *
+from .sdh_basket1 import *
+from .sdh_listerine import *
 from .plastic_bottle import *
 from .plastic_basket import *

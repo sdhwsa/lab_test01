@@ -34,7 +34,7 @@ from robotis_dds_python.tools.topic_manager import TopicManager
 class OMYSdk:
     """OMYSdk class for DDS teleoperation and publishing robot state/images."""
 
-    def __init__(self, env, mode: str):
+    def __init__(self, env, mode: str, joint_names: list[str] | None = None):
         self.env = env
         self.mode = mode  # 'record' or 'inference'
         self.running = True
@@ -49,7 +49,9 @@ class OMYSdk:
         self.current_joint_state = {}
 
         # Define joint names
-        self.joint_names = ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "rh_r1_joint"]
+        if joint_names is None:
+            joint_names = ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "rh_r1_joint"]
+        self.joint_names = list(joint_names)
         self.exclude_joints = []
 
         # DDS Topic Manager
