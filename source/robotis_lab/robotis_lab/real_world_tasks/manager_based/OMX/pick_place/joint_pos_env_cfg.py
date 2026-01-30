@@ -62,7 +62,7 @@ class EventCfg:
         mode="reset",
         params={
             # joint_1,2,3..gripper(left),gripper(right)
-            "default_pose": [-1.873, 1.545, -0.0031, 1.588, -0.0308, 0.675], 
+            "default_pose": [-0.0031,-1.873 ,1.545 , 1.588, -0.0308, 0.675, 0.675], 
         },
     )
 
