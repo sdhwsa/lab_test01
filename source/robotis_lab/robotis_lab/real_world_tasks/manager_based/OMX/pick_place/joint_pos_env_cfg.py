@@ -62,7 +62,7 @@ class EventCfg:
         mode="reset",
         params={
             # joint_1,2,3..gripper(left),gripper(right)
-            "default_pose": [0.0, 0.0, 0.0, 0.15, 0.0, 0.0, 0.0], 
+            "default_pose": [-1.873, 1.545, -0.0031, 1.588, -0.0308, 0.675], 
         },
     )
 
@@ -208,8 +208,8 @@ class OMXBottlePickPlaceTable1EnvCfg(OMXBottlePickPlaceEnvCfg):
             prim_path="{ENV_REGEX_NS}/Table"
         )
         # Swap bottle and basket assets for the custom ones
-        # self.scene.bottle = SDH_LISTERINE_CFG.replace(prim_path="{ENV_REGEX_NS}/Bottle")
-        self.scene.bottle = SDH_VASELINE_CFG.replace(prim_path="{ENV_REGEX_NS}/Bottle")
+        self.scene.bottle = SDH_LISTERINE_CFG.replace(prim_path="{ENV_REGEX_NS}/Bottle")
+        # self.scene.bottle = SDH_VASELINE_CFG.replace(prim_path="{ENV_REGEX_NS}/Bottle")
         self.scene.basket = SDH_BASKET1_CFG.replace(prim_path="{ENV_REGEX_NS}/Basket")
         # Shift robot for the scanned table setup
         self.scene.robot.init_state.pos = [-0.35, 0.0, 0.0]
